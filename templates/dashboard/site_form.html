@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block content %}
+<h1>{{ view.form_class.Meta.model|default:"Adaugă" }}</h1>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button>Salvează</button></form>
+<p><a href="{% url 'dashboard:sites' %}">Înapoi</a></p>
+{% endblock %}

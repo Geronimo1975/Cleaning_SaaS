@@ -1,0 +1,25 @@
+{% extends "base.html" %}{% block content %}
+<h1>Echipamente</h1>
+<p>Utilizare {{ start|date:"d.m.Y" }} – {{ end|date:"d.m.Y" }}</p>
+
+<table><tr><th>Echipament</th><th>Obiectiv</th><th>Sesiuni</th><th>Funcționare</th>
+  <th>Suprafață</th><th>Erori</th><th>Online</th><th>Cheie</th></tr>
+{% for r in rows %}
+<tr><td>{{ r.device.label }}<br><small>{{ r.device.get_kind_display }}</small></td>
+    <td>{{ r.device.site.name|default:"—" }}</td>
+    <td>{{ r.sessions }}</td><td>{{ r.runtime_minutes }} min</td>
+    <td>{% if r.area_sqm %}{{ r.area_sqm }} m²{% else %}—{% endif %}</td>
+    <td>{{ r.errors }}</td>
+    <td>{{ r.online|yesno:"da,nu" }}</td>
+    <td><code>{{ r.device.token_prefix }}…</code>
+      <form method="post">{% csrf_token %}
+        <input type="hidden" name="device" value="{{ r.device.pk }}">
+        <button name="action" value="reissue">Cheie nouă</button></form></td></tr>
+{% empty %}<tr><td colspan="8">Niciun echipament înregistrat.</td></tr>{% endfor %}
+</table>
+
+<h2>Adaugă echipament</h2>
+<form method="post">{% csrf_token %}{{ form.as_p }}
+  <button name="action" value="create">Adaugă și generează cheia</button></form>
+<p><small>Cheia se afișează o singură dată. În baza de date rămâne doar hash-ul ei.</small></p>
+{% endblock %}

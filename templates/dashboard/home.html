@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · {{ account.display_name }}{% endblock %}
+{% block content %}
+<h1>{{ account.display_name }}</h1>
+
+{% if other_accounts %}
+  <form method="post" action="{% url 'dashboard:home' %}">{% csrf_token %}
+    <label>Cont activ:
+      <select name="account" onchange="this.form.submit()">
+        <option value="{{ account.pk }}">{{ account.display_name }}</option>
+        {% for a in other_accounts %}<option value="{{ a.pk }}">{{ a.display_name }}</option>{% endfor %}
+      </select>
+    </label>
+  </form>
+{% endif %}
+
+<section>
+  {% for m in metrics %}<p><strong>{{ m.value }}</strong> {{ m.label }}</p>{% endfor %}
+</section>
+
+<section>
+  {% for p in panels %}
+    <article>
+      <h2>{% if p.url %}<a href="{{ p.url }}">{{ p.title }}</a>{% else %}{{ p.title }}{% endif %}</h2>
+      <p>{{ p.description }}</p>
+    </article>
+  {% empty %}
+    <p>Contul nu are încă nicio capabilitate activă.</p>
+  {% endfor %}
+</section>
+{% endblock %}

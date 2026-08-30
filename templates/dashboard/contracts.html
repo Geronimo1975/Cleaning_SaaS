@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block content %}
+<h1>Contracte</h1>
+<ul>{% for c in contracts %}
+  <li><a href="{% url 'dashboard:contract_detail' c.pk %}">{{ c }}</a> —
+      {{ c.get_status_display }} — {{ c.monthly_gross }} €/lună</li>
+{% empty %}<li>Niciun contract.</li>{% endfor %}</ul>
+{% endblock %}

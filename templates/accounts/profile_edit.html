@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block content %}
+<h1>Profilul meu</h1>
+<form method="post" enctype="multipart/form-data">{% csrf_token %}
+  {{ account_form.as_p }}{% if identity_form %}{{ identity_form.as_p }}{% endif %}{{ form.as_p }}
+  <button>Salvează</button>
+</form>
+<form method="post" action="{% url 'accounts:publish_toggle' %}">{% csrf_token %}
+  <button>{% if is_published %}Depublică profilul{% else %}Publică profilul{% endif %}</button>
+</form>
+{% endblock %}

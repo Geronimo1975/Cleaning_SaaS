@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }}{% endblock %}
+{% block content %}
+<script type="application/ld+json">{{ jsonld }}</script>
+<h1>{{ job.title }}</h1>
+<p>{{ job.account.display_name }} · {{ job.locality.name }} · {{ job.get_employment_type_display }}</p>
+{% if job.salary_min %}<p>{{ job.salary_min }}–{{ job.salary_max }} {{ job.salary_currency }} / {{ job.get_salary_unit_display }}</p>{% endif %}
+<div>{{ job.description|linebreaks }}</div>
+<h2>Candidatură</h2>
+<form method="post" action="{% url 'jobs:apply' job.slug %}">{% csrf_token %}{{ form.as_p }}<button>Trimite candidatura</button></form>
+{% endblock %}

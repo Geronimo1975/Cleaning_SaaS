@@ -1,0 +1,51 @@
+{% extends "base.html" %}{% block content %}
+<h1>Calibrarea estimărilor</h1>
+<p>Duratele planificate se compară cu pontajul. Propunerile se aplică manual —
+   <code>minutes_per_visit</code> e intrarea planificatorului, iar planificatorul
+   produce obligații contractuale.</p>
+
+<form method="post">{% csrf_token %}
+  <button name="action" value="scan">Analizează pontajul</button></form>
+
+{% if impact.count %}
+<p><strong>{{ impact.count }} propuneri deschise</strong> —
+   {{ impact.increases }} în creștere, {{ impact.decreases }} în scădere.
+   Efect asupra cererii săptămânale: {{ impact.weekly_delta_minutes }} min.</p>
+{% endif %}
+
+<h2>Propuneri</h2>
+{% for p in proposals %}
+<article>
+  <h3>{{ p.zone.site.name }} / {{ p.zone.name }}</h3>
+  <p><strong>{{ p.current_minutes }} → {{ p.suggested_minutes }} min</strong>
+     ({{ p.delta_minutes }} min/vizită, {{ p.weekly_impact_minutes }} min/săptămână)<br>
+     Mediana {{ p.median_minutes }} min pe {{ p.sample_size }} ture ·
+     dispersie ±{{ p.dispersion_minutes }} min ·
+     încredere <strong>{{ p.get_confidence_display }}</strong><br>
+     Fereastră: {{ p.window_start|date:"d.m.Y" }} – {{ p.window_end|date:"d.m.Y" }}</p>
+  <form method="post">{% csrf_token %}
+    <input type="hidden" name="calibration" value="{{ p.pk }}">
+    <input name="note" placeholder="Observație (opțional)">
+    <button name="action" value="apply">Aplică</button>
+    <button name="action" value="reject">Respinge</button></form>
+</article>
+{% empty %}<p>Nicio propunere deschisă.</p>{% endfor %}
+
+<h2>Situația zonelor</h2>
+<table><tr><th>Zonă</th><th>Estimare</th><th>Ture pontate</th><th>Verdict</th></tr>
+{% for a in analyses %}
+<tr><td>{{ a.zone.site.name }} / {{ a.zone.name }}</td>
+    <td>{{ a.current_minutes }} min</td><td>{{ a.sample_size }}</td>
+    <td>{{ a.verdict }}</td></tr>
+{% endfor %}</table>
+
+{% if history %}
+<h2>Istoric</h2>
+<ul>{% for h in history %}
+  <li>{{ h.decided_at|date:"d.m.Y" }} — {{ h.zone.name }}:
+      {{ h.current_minutes }} → {{ h.suggested_minutes }} min —
+      <strong>{{ h.get_status_display }}</strong>
+      {% if h.decision_note %}({{ h.decision_note }}){% endif %}</li>
+{% endfor %}</ul>
+{% endif %}
+{% endblock %}

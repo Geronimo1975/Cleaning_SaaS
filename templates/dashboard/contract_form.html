@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block content %}
+<h1>Contract pentru {{ application.applicant_account.display_name }}</h1>
+{% if issues %}<div><strong>Verificare legală:</strong><ul>
+  {% for i in issues %}<li>{{ i }}</li>{% endfor %}</ul></div>{% endif %}
+<form method="post">{% csrf_token %}{{ form.as_p }}<button>Creează contractul</button></form>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% block content %}
+<h1>Cererile mele</h1>
+<p><a href="{% url 'dashboard:request_create' %}">Cerere nouă</a></p>
+<table><tr><th>Titlu</th><th>Serviciu</th><th>Localitate</th><th>Status</th><th>Oferte</th></tr>
+{% for r in requests %}
+<tr><td><a href="{% url 'dashboard:request_detail' r.pk %}">{{ r.title }}</a></td>
+    <td>{{ r.category.name_de }}</td><td>{{ r.locality.name }}</td>
+    <td>{{ r.get_status_display }}</td><td>{{ r.offers.count }}</td></tr>
+{% empty %}<tr><td colspan="5">Nicio cerere.</td></tr>{% endfor %}
+</table>
+{% endblock %}

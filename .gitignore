@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+/staticfiles/
+/media/
+# Documente de verificare (acte de identitate, Führungszeugnis) — niciodată în repo.
+/private/
+
+# Secrete
+.env
+*.pem
+*-service-account.json
+
+# Unelte
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# macOS
+.DS_Store

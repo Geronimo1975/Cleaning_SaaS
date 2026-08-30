@@ -1,0 +1,36 @@
+{% extends "base.html" %}{% block content %}
+<h1>{{ candidate.display_name }}</h1>
+<p>Candidatură la: {{ application.job.title }} · {{ application.created_at|date:"d.m.Y" }}</p>
+
+<h2>Contact</h2>
+<p>Telefon: {{ candidate.phone|default:"—" }}<br>
+   Email: {{ candidate.contact_email|default:"—" }}<br>
+   Localitate: {{ candidate.locality|default:"—" }}</p>
+
+{% if profile %}
+<h2>Profil</h2>
+<p>Experiență: {{ profile.years_experience }} ani ·
+   Disponibilitate: {{ profile.get_availability_display }} ·
+   Rază: {{ profile.willing_to_travel_km }} km<br>
+   Transport propriu: {{ profile.has_own_transport|yesno:"da,nu" }} ·
+   Echipament propriu: {{ profile.has_own_equipment|yesno:"da,nu" }} ·
+   Limbi: {{ profile.languages|default:"—" }}</p>
+<p>{{ profile.bio|linebreaks }}</p>
+{% endif %}
+
+<p>{{ application.message|linebreaks }}</p>
+
+<h2>Status</h2>
+<form method="post">{% csrf_token %}
+  <select name="status">{% for v, l in next_statuses %}
+    <option value="{{ v }}" {% if v == application.status %}selected{% endif %}>{{ l }}</option>
+  {% endfor %}</select><button>Actualizează</button>
+</form>
+
+<h2>Contracte</h2>
+{% for c in contracts %}
+  <p><a href="{% url 'dashboard:contract_detail' c.pk %}">{{ c.get_contract_type_display }}</a>
+     — {{ c.get_status_display }} — {{ c.monthly_gross }} €/lună</p>
+{% empty %}<p>Niciun contract generat.</p>{% endfor %}
+<p><a href="{% url 'dashboard:contract_create' application.pk %}">Generează contract</a></p>
+{% endblock %}

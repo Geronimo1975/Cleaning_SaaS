@@ -1,0 +1,48 @@
+{% extends "base.html" %}{% block content %}
+<h1>Planificare — săptămâna {{ week_start|date:"d.m.Y" }}</h1>
+<p><a href="?week={{ prev_week|date:'Y-m-d' }}">← anterioară</a> ·
+   <a href="?week={{ next_week|date:'Y-m-d' }}">următoare →</a></p>
+
+<h2>Capacitate</h2>
+<p>Cerere: <strong>{{ report.demand_minutes }} min</strong> ·
+   Capacitate contractată: <strong>{{ report.supply_minutes }} min</strong>
+   ({{ report.workers }} lucrători)
+   {% if report.utilisation %}· Grad de încărcare: {{ report.utilisation }} %{% endif %}</p>
+{% if report.deficit_minutes %}
+  <p><strong>Deficit: {{ report.deficit_minutes }} min/săptămână.</strong>
+     Nu se poate acoperi fără contracte suplimentare — orele contractate sunt plafon legal.</p>
+{% endif %}
+
+<form method="post">{% csrf_token %}
+  <button {% if not zones %}disabled{% endif %}>
+    {% if plan %}Regenerează planul{% else %}Generează planul{% endif %}</button>
+  {% if not zones %}<span>Definește întâi zonele.</span>{% endif %}
+</form>
+
+{% if plan %}
+<h2>Ture ({{ plan.planned_minutes }} min planificate) — {{ plan.get_status_display }}</h2>
+{% if plan.status == 'DRAFT' %}
+  <form method="post" action="{% url 'dashboard:plan_publish' plan.pk %}">{% csrf_token %}
+    <button>Publică planul și anunță lucrătorii</button></form>
+{% else %}
+  <p>Publicat la {{ plan.published_at|date:"d.m.Y H:i" }}.
+     <a href="{% url 'dashboard:time_records' %}?week={{ week_start|date:'Y-m-d' }}">Vezi pontajul</a></p>
+{% endif %}
+{% for day, shifts in grid %}
+  <h3>{{ day|date:"l, d.m" }}</h3>
+  <ul>{% for s in shifts %}
+    <li>{{ s.start_time|time:"H:i" }} — {{ s.zone.site.name }} / {{ s.zone.name }}
+        — {{ s.duration_minutes }} min — {{ s.worker.display_name|default:"nealocat" }}</li>
+  {% empty %}<li>—</li>{% endfor %}</ul>
+{% endfor %}
+
+{% if plan.unmet_demand %}
+<h2>Vizite nealocate ({{ plan.unmet_demand|length }})</h2>
+<table><tr><th>Zonă</th><th>Data</th><th>Durată</th><th>Motiv</th></tr>
+{% for u in plan.unmet_demand %}
+  <tr><td>{{ u.site }} / {{ u.zone }}</td><td>{{ u.date }}</td><td>{{ u.minutes }} min</td>
+      <td>{% for name, reason in u.reasons.items %}{{ name }}: {{ reason }}<br>{% endfor %}</td></tr>
+{% endfor %}</table>
+{% endif %}
+{% endif %}
+{% endblock %}

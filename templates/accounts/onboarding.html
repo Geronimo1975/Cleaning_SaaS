@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block content %}
+<h1>Hai să-ți configurăm contul</h1>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button>Continuă</button></form>
+{% endblock %}

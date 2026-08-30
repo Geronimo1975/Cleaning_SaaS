@@ -1,0 +1,25 @@
+{% extends "base.html" %}{% block content %}
+<h1>Bursa de cereri</h1>
+{% if invitations %}
+<h2>Sugestii pentru tine</h2>
+<ul>{% for i in invitations %}
+  <li><a href="{% url 'dashboard:offer' i.request.pk %}">{{ i.request.title }}</a>
+      — potrivire {{ i.score }}</li>{% endfor %}</ul>
+<p><small>Sunt sugestii, nu repartizări. Decizi singur dacă ofertezi și la ce preț.</small></p>
+{% endif %}
+
+<h2>Toate cererile deschise</h2>
+<form method="get"><label><input type="checkbox" name="mine_only" value="1"
+  {% if request.GET.mine_only %}checked{% endif %}> Doar serviciile și zonele mele</label>
+  <button>Filtrează</button></form>
+<table><tr><th>Cerere</th><th>Serviciu</th><th>Localitate</th><th>Suprafață</th>
+  <th>Frecvență</th><th>Termen</th><th></th></tr>
+{% for r in requests %}
+<tr><td>{{ r.title }}</td><td>{{ r.category.name_de }}</td><td>{{ r.locality.name }}</td>
+    <td>{{ r.area_sqm }} m²</td><td>{{ r.get_frequency_display }}</td>
+    <td>{{ r.offers_close_at|date:"d.m H:i" }}</td>
+    <td><a href="{% url 'dashboard:offer' r.pk %}">
+      {% if r.pk in my_offers %}Editează oferta{% else %}Ofertează{% endif %}</a></td></tr>
+{% empty %}<tr><td colspan="7">Nicio cerere deschisă.</td></tr>{% endfor %}
+</table>
+{% endblock %}

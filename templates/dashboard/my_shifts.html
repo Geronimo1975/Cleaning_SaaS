@@ -1,0 +1,36 @@
+{% extends "base.html" %}{% block content %}
+<h1>Turele mele — săptămâna {{ week_start|date:"d.m.Y" }}</h1>
+<p><a href="?week={{ prev_week|date:'Y-m-d' }}">← anterioară</a> ·
+   <a href="?week={{ next_week|date:'Y-m-d' }}">următoare →</a></p>
+<p>Efectuat săptămâna aceasta: <strong>{{ done_minutes }} min</strong></p>
+
+{% for s in shifts %}
+<article>
+  <h2>{{ s.date|date:"l, d.m" }} · {{ s.start_time|time:"H:i" }}</h2>
+  <p>{{ s.zone.site.name }} / {{ s.zone.name }} — {{ s.zone.site.locality.name }}<br>
+     Planificat: {{ s.duration_minutes }} min · Status: <strong>{{ s.get_status_display }}</strong>
+     {% if s.actual_minutes %} · Pontat: {{ s.actual_minutes }} min
+       {% if s.variance_minutes %}({{ s.variance_minutes }} min față de estimare){% endif %}
+     {% endif %}</p>
+
+  {% if s.status == 'PLANNED' %}
+    <form method="post">{% csrf_token %}<input type="hidden" name="shift" value="{{ s.pk }}">
+      <button name="action" value="confirm">Confirm</button>
+      <input name="reason" placeholder="Motiv (opțional)">
+      <button name="action" value="decline">Refuz</button></form>
+  {% endif %}
+
+  {% if s.status == 'CONFIRMED' or s.status == 'PLANNED' %}
+    {% if s.date <= today %}
+      <form method="post">{% csrf_token %}<input type="hidden" name="shift" value="{{ s.pk }}">
+        <button name="action" value="check_in">Începe lucrul</button></form>
+    {% endif %}
+  {% elif s.status == 'IN_PROGRESS' %}
+    <p>Început la {{ s.checked_in_at|time:"H:i" }}</p>
+    <form method="post">{% csrf_token %}<input type="hidden" name="shift" value="{{ s.pk }}">
+      <input name="note" placeholder="Observații (opțional)">
+      <button name="action" value="check_out">Încheie lucrul</button></form>
+  {% endif %}
+</article>
+{% empty %}<p>Nicio tură publicată pentru această săptămână.</p>{% endfor %}
+{% endblock %}

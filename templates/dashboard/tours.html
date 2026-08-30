@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% block content %}
+<h1>Runde</h1>
+<p>O rundă e un lucrător, mai multe obiective, în ordine. Se planifică indivizibil:
+   ori încape toată la un om într-o zi, ori rămâne nealocată cu motiv.</p>
+
+<table><tr><th>Rundă</th><th>Opriri</th><th>Durată totală</th><th>Zile</th><th>Pe săptămână</th><th>Stare</th></tr>
+{% for t in tours %}
+<tr><td><a href="{% url 'dashboard:tour_detail' t.pk %}">{{ t.name }}</a></td>
+    <td>{{ t.stops.count }}</td><td>{{ t.total_minutes }} min</td>
+    <td>{{ t.allowed_weekdays }}</td><td>{{ t.visits_per_week }}</td>
+    <td>{{ t.is_active|yesno:"activă,inactivă" }}</td></tr>
+{% empty %}<tr><td colspan="6">Nicio rundă.</td></tr>{% endfor %}
+</table>
+
+<h2>Rundă nouă</h2>
+<form method="post">{% csrf_token %}{{ form.as_p }}
+  <button name="action" value="create">Creează</button></form>
+{% endblock %}

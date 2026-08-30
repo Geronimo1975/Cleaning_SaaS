@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block content %}
+<h1>Prestatori</h1>
+<ul>{% for v in views %}<li><a href="/profil/{{ v.slug }}/">{{ v.display_name }}</a> — {{ v.locality }}</li>{% empty %}<li>Niciun prestator.</li>{% endfor %}</ul>
+{% endblock %}

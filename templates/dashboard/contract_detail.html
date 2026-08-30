@@ -1,0 +1,31 @@
+{% extends "base.html" %}{% block content %}
+<h1>{{ contract.get_contract_type_display }}</h1>
+<p>{{ contract.worker.display_name }} @ {{ contract.employer.display_name }}<br>
+   {{ contract.hours_per_month }} h/lună × {{ contract.hourly_wage }} € =
+   <strong>{{ contract.monthly_gross }} € brut/lună</strong><br>
+   Status: {{ contract.get_status_display }}</p>
+
+{% if issues %}<div><strong>Verificare legală:</strong><ul>
+  {% for i in issues %}<li>{{ i }}</li>{% endfor %}</ul></div>{% endif %}
+
+{% if contract.rendered_body %}
+  <article>{{ contract.rendered_body|safe }}</article>
+  <p><small>Amprentă document (SHA-256): {{ contract.body_sha256 }}</small></p>
+{% endif %}
+
+{% if is_employer and contract.status == 'DRAFT' %}
+<form method="post">{% csrf_token %}<input type="hidden" name="action" value="send">
+  <button>Trimite spre semnare</button></form>
+{% endif %}
+
+{% if can_sign %}
+<h2>Semnare electronică</h2>
+<form method="post">{% csrf_token %}<input type="hidden" name="action" value="sign">
+  {{ signature_form.as_p }}<button>Semnează</button></form>
+{% elif already_signed %}<p>Ai semnat acest contract.</p>{% endif %}
+
+<h2>Semnături</h2>
+<ul>{% for s in contract.signatures.all %}
+  <li>{{ s.signer_name }} — {{ s.signed_at|date:"d.m.Y H:i" }} — IP {{ s.ip_address|default:"—" }}</li>
+{% empty %}<li>Nicio semnătură.</li>{% endfor %}</ul>
+{% endblock %}

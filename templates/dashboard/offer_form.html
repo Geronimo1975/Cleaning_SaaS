@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% block content %}
+<h1>{{ request_obj.title }}</h1>
+<p>{{ request_obj.category.name_de }} · {{ request_obj.locality.name }}
+   {% if request_obj.postal_code %}({{ request_obj.postal_code }}){% endif %} ·
+   {{ request_obj.area_sqm }} m²{% if request_obj.rooms %} · {{ request_obj.rooms }} camere{% endif %}<br>
+   {{ request_obj.get_frequency_display }} · de la {{ request_obj.earliest_start|date:"d.m.Y" }} ·
+   Materiale de la client: {{ request_obj.supplies_provided|yesno:"da,nu" }} ·
+   Animale: {{ request_obj.has_pets|yesno:"da,nu" }}</p>
+<p>{{ request_obj.description|linebreaks }}</p>
+<p><small>Adresa exactă și datele de contact devin vizibile după atribuire.</small></p>
+
+{% if request_obj.is_open %}
+<h2>{% if existing %}Oferta ta{% else %}Trimite o ofertă{% endif %}</h2>
+<form method="post">{% csrf_token %}{{ form.as_p }}
+  <button>{% if existing %}Actualizează{% else %}Trimite{% endif %}</button>
+  {% if existing and existing.status == 'SUBMITTED' %}
+    <button name="action" value="withdraw">Retrage oferta</button>{% endif %}</form>
+{% else %}<p>Cererea nu mai primește oferte.</p>{% endif %}
+
+{% if existing %}<p>Status: <strong>{{ existing.get_status_display }}</strong></p>{% endif %}
+{% endblock %}

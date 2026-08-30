@@ -1,0 +1,70 @@
+{% extends "base.html" %}{% block content %}
+<h1>{{ request_obj.title }}</h1>
+<p>{{ request_obj.category.name_de }} · {{ request_obj.locality.name }} ·
+   {{ request_obj.area_sqm }} m² · {{ request_obj.get_frequency_display }} ·
+   <strong>{{ request_obj.get_status_display }}</strong></p>
+{% if request_obj.is_35a_eligible %}
+  <p>Serviciu deductibil §35a EStG — 20 % din manoperă, plafon 4.000 €/an.</p>
+{% endif %}
+
+{% if request_obj.status == 'DRAFT' %}
+  {% if suggestions %}
+  <h2>Prestatori potriviți ({{ suggestions|length }})</h2>
+  <ul>{% for provider, score, reasons in suggestions %}
+    <li>{{ provider.display_name }} — potrivire {{ score }}</li>{% endfor %}</ul>
+  <p><small>Vor fi anunțați la publicare. Fiecare decide singur dacă ofertează.</small></p>
+  {% else %}<p>Niciun prestator înscris pe această combinație serviciu × localitate.</p>{% endif %}
+  <form method="post">{% csrf_token %}<button name="action" value="publish">Publică cererea</button></form>
+{% endif %}
+
+{% if scored %}
+<h2>Oferte primite ({{ scored|length }})</h2>
+{% for s in scored %}
+<article>
+  <h3>{{ s.offer.provider.display_name }} — potrivire {{ s.percent }} %</h3>
+  <p><strong>{{ s.offer.price_per_visit }} €/vizită</strong> ·
+     {{ s.offer.estimated_minutes }} min · {{ s.offer.implied_hourly }} €/oră ·
+     {{ s.offer.monthly_price }} €/lună · de la {{ s.offer.earliest_start|date:"d.m.Y" }}</p>
+  <table>{% for label, value, weight in s.explain %}
+    <tr><td>{{ label }}</td><td>{{ value }} / 100</td><td><small>{{ weight }}</small></td></tr>
+  {% endfor %}</table>
+  {% for note in s.notes %}<p><small>{{ note }}</small></p>{% endfor %}
+  {% if s.warnings %}<ul>{% for w in s.warnings %}<li>{{ w }}</li>{% endfor %}</ul>{% endif %}
+  {% if request_obj.is_open %}
+  <form method="post">{% csrf_token %}
+    <input type="hidden" name="offer" value="{{ s.offer.pk }}">
+    <button name="action" value="award">Alege această ofertă</button></form>
+  {% endif %}
+  {% if s.offer.message %}<p>{{ s.offer.message|linebreaks }}</p>{% endif %}
+</article>
+{% endfor %}
+{% elif request_obj.status == 'OPEN' %}<p>Nicio ofertă încă.</p>{% endif %}
+
+{% if request_obj.awarded_offer %}
+<h2>Atribuită</h2>
+<p>{{ request_obj.awarded_offer.provider.display_name }} —
+   {{ request_obj.awarded_offer.price_per_visit }} €/vizită ·
+   {{ request_obj.awarded_offer.implied_hourly }} €/oră</p>
+
+{% if contract %}
+  <p>Contract: <a href="{% url 'dashboard:contract_detail' contract.pk %}">
+     {{ contract.get_contract_type_display }}</a> — {{ contract.get_status_display }}</p>
+  {% if contract.status == 'SIGNED' and request_obj.status == 'AWARDED' %}
+    <form method="post">{% csrf_token %}
+      <button name="action" value="activate">Activează execuția</button></form>
+    <p><small>Creează obiectivul în contul prestatorului. Planificarea turelor
+       îi aparține lui — platforma nu alocă oameni peste granița dintre firme.</small></p>
+  {% elif request_obj.status == 'ACTIVE' %}
+    <p>În execuție. Obiectivul e la prestator, care își planifică echipa.</p>
+  {% endif %}
+{% else %}
+  <form method="post">{% csrf_token %}
+    <button name="action" value="contract">Generează contractul</button></form>
+  <p><small>Tipul contractului rezultă din statutul juridic al prestatorului, nu din alegerea ta.</small></p>
+{% endif %}
+{% endif %}
+
+{% if request_obj.status == 'OPEN' or request_obj.status == 'DRAFT' %}
+<form method="post">{% csrf_token %}<button name="action" value="cancel">Anulează cererea</button></form>
+{% endif %}
+{% endblock %}

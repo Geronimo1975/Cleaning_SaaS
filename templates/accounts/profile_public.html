@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ view_.display_name }}{% endblock %}
+{% block content %}
+<h1>{{ view_.display_name }}</h1>
+<p>{{ view_.locality }}</p>
+<p>{{ view_.about }}</p>
+{% if view_.legal_name %}<p>{{ view_.legal_name }} · {{ view_.vat_id }}</p>{% endif %}
+<ul>{% for s in services %}<li>{{ s.name_de }}</li>{% endfor %}</ul>
+{% if deductible_35a %}<p><strong>20 % steuerlich absetzbar (§35a EStG)</strong></p>{% endif %}
+{% if view_.phone %}<p>Telefon: {{ view_.phone }}</p>
+{% else %}<p><em>Datele de contact devin vizibile după o candidatură sau o comandă.</em></p>{% endif %}
+{% endblock %}

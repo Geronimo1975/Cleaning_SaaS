@@ -1,0 +1,22 @@
+[project]
+name = "cleaning-saas"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=5.1,<6.0",
+    "django-allauth>=65.0",
+    "django-htmx>=1.19",
+    "python-dotenv>=1.0",
+    "pillow>=10.4",
+    "psycopg[binary]>=3.2",
+]
+
+[project.optional-dependencies]
+# Necesare doar în producție, pentru trimiterea efectivă către Google Indexing API.
+indexing = ["google-auth>=2.35", "requests>=2.32"]
+# Export Reinigungsplan.
+export = ["openpyxl>=3.1"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"

@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block content %}
+<h1>Anunțuri</h1>
+<p><a href="{% url 'dashboard:posting_create' %}">Anunț nou</a></p>
+<table>
+<tr><th>Titlu</th><th>Localitate</th><th>Status</th><th>Candidaturi</th><th></th></tr>
+{% for p in postings %}
+<tr>
+  <td><a href="{% url 'dashboard:posting_edit' p.pk %}">{{ p.title }}</a></td>
+  <td>{{ p.locality.name }}</td>
+  <td>{{ p.get_status_display }}{% if p.status == 'PUBLISHED' and not p.is_live %} (expirat){% endif %}</td>
+  <td><a href="{% url 'dashboard:candidates' %}?job={{ p.pk }}">{{ p.application_count }}</a></td>
+  <td><form method="post" action="{% url 'dashboard:posting_publish' p.pk %}">{% csrf_token %}
+      <button>{% if p.status == 'PUBLISHED' %}Închide{% else %}Publică{% endif %}</button></form></td>
+</tr>
+{% empty %}<tr><td colspan="5">Niciun anunț.</td></tr>{% endfor %}
+</table>
+{% endblock %}

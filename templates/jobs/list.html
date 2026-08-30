@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block content %}
+<h1>Anunțuri</h1>
+<ul>{% for j in jobs %}<li><a href="{{ j.get_absolute_url }}">{{ j.title }}</a> — {{ j.locality.name }}</li>{% empty %}<li>Niciun anunț activ.</li>{% endfor %}</ul>
+{% endblock %}

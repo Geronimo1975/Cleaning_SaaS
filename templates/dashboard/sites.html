@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% block content %}
+<h1>Obiective și zone</h1>
+<p><a href="{% url 'dashboard:site_create' %}">Obiectiv nou</a> ·
+   <a href="{% url 'dashboard:zone_create' %}">Zonă nouă</a></p>
+{% for s in sites %}
+  <h2>{{ s.name }} — {{ s.locality.name }}</h2>
+  <p><a href="{% url 'dashboard:site_reinigungsplan' s.pk %}">Reinigungsplan herunterladen (XLSX)</a></p>
+  <table><tr><th>Zonă</th><th>Serviciu</th><th>Instrucțiuni</th><th>Durată</th><th>Vizite/săpt.</th><th>Total/săpt.</th></tr>
+  {% for z in s.zones.all %}
+    <tr><td>{{ z.name }}</td><td>{{ z.category.name_de }}</td><td>{{ z.description }}</td>
+        <td>{{ z.minutes_per_visit }} min</td><td>{{ z.visits_per_week }}</td>
+        <td>{{ z.weekly_minutes }} min</td></tr>
+  {% empty %}<tr><td colspan="6">Nicio zonă definită.</td></tr>{% endfor %}
+  </table>
+{% empty %}<p>Niciun obiectiv.</p>{% endfor %}
+{% endblock %}

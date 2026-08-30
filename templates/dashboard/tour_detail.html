@@ -1,0 +1,25 @@
+{% extends "base.html" %}{% block content %}
+<h1>{{ tour.name }}</h1>
+<p>{{ tour.total_minutes }} min pe rundă (lucru + deplasare) ·
+   {{ tour.visits_per_week }}×/săptămână · zilele {{ tour.allowed_weekdays }} ·
+   {{ tour.is_active|yesno:"activă,inactivă" }}</p>
+
+<table><tr><th>#</th><th>Obiectiv / zonă</th><th>Deplasare</th><th>Lucru</th><th></th></tr>
+{% for s in stops %}
+<tr><td>{{ s.position }}</td>
+    <td>{{ s.zone.site.name }} / {{ s.zone.name }} — {{ s.zone.site.locality.name }}</td>
+    <td>{{ s.travel_minutes }} min</td><td>{{ s.zone.minutes_per_visit }} min</td>
+    <td><form method="post">{% csrf_token %}
+        <input type="hidden" name="stop" value="{{ s.pk }}">
+        <button name="action" value="remove_stop">Elimină</button></form></td></tr>
+{% empty %}<tr><td colspan="5">Nicio oprire.</td></tr>{% endfor %}
+</table>
+
+<h2>Adaugă oprire</h2>
+<form method="post">{% csrf_token %}{{ form.as_p }}
+  <button name="action" value="add_stop">Adaugă</button></form>
+
+<form method="post">{% csrf_token %}
+  <button name="action" value="toggle">
+    {% if tour.is_active %}Dezactivează runda{% else %}Reactivează runda{% endif %}</button></form>
+{% endblock %}
