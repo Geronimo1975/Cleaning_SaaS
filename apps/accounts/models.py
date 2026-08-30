@@ -243,5 +243,40 @@ class AccountCapability(models.Model):
         return f"{self.account} · {self.kind}"
 
 
-from .compliance import *  # noqa: E402,F401,F403
-from .profiles import *  # noqa: E402,F401,F403
+# Modelele din `compliance` și `profiles` trebuie importate ca Django să le
+# înregistreze — dar ele importă `Account` de aici, deci importul poate sta doar
+# la final. Explicit, nu prin `*`: un wildcard aduce în namespace și tot ce
+# importă ele (`models`, `settings`, `ValidationError`), iar la o coliziune de
+# nume ultimul import câștigă în tăcere.
+from .compliance import (  # noqa: E402
+    ConsentRecord,
+    ConsentType,
+    DocumentStatus,
+    DocumentType,
+    VerificationDocument,
+)
+from .profiles import (  # noqa: E402
+    AccountService,
+    Availability,
+    CompanyProfile,
+    ServiceArea,
+    WorkerProfile,
+)
+
+__all__ = [
+    "Account",
+    "AccountCapability",
+    "AccountService",
+    "Availability",
+    "CompanyProfile",
+    "ConsentRecord",
+    "ConsentType",
+    "DocumentStatus",
+    "DocumentType",
+    "Membership",
+    "ReservedSlug",
+    "ServiceArea",
+    "User",
+    "VerificationDocument",
+    "WorkerProfile",
+]
