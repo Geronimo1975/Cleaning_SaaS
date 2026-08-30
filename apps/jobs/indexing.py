@@ -38,6 +38,17 @@ def flush(limit: int = 100, transport=None) -> dict:
     Trimite notificările în așteptare. Returnează un raport, nu aruncă:
     e apelată dintr-un cron și un eșec nu are voie să oprească restul cozii.
     """
+    from apps.legal.publication import missing_operator_fields, operator_is_configured
+
+    # Nu împingem URL-uri către Google cât timp Impressum-ul e invalid.
+    if not operator_is_configured():
+        return {
+            "skipped": "operator nedeclarat (§5 TMG): "
+                       + ", ".join(missing_operator_fields()),
+            "sent": 0,
+            "failed": 0,
+        }
+
     transport = transport or _transport
     if transport is _transport and not _credentials_path():
         return {"skipped": "GOOGLE_INDEXING_CREDENTIALS nu e configurat", "sent": 0, "failed": 0}

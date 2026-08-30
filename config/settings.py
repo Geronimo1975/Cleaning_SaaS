@@ -55,6 +55,7 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
     "apps.accounts.middleware.ActiveAccountMiddleware",
+    "apps.legal.publication.PublicationGateMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"

@@ -6,6 +6,8 @@ from django.contrib.sitemaps.views import sitemap
 from django.urls import include, path
 from django.views.generic import TemplateView
 
+from apps.legal.views import robots_txt
+
 from .sitemaps import SITEMAPS
 
 from apps.devices.api import ingest as telemetry_ingest
@@ -21,7 +23,7 @@ urlpatterns = [
     ),
     path(
         "robots.txt",
-        TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
+        robots_txt,
         name="robots",
     ),
     path("accounts/", include("allauth.urls")),

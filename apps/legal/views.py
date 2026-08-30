@@ -43,3 +43,26 @@ class DatenschutzView(LegalPageView):
 
 class AgbView(LegalPageView):
     template_name = "legal/agb.html"
+
+
+def robots_txt(request):
+    """
+    Cât timp operatorul nu e declarat, blocăm tot. E reversibil automat:
+    completarea variabilelor `OPERATOR_*` redeschide site-ul.
+    """
+    from django.http import HttpResponse
+
+    from .publication import operator_is_configured
+
+    if not operator_is_configured():
+        body = "User-agent: *\nDisallow: /\n"
+    else:
+        body = (
+            "User-agent: *\n"
+            "Disallow: /admin/\n"
+            "Disallow: /dashboard/\n"
+            "Disallow: /cont/\n"
+            "Disallow: /accounts/\n"
+            f"Sitemap: {request.scheme}://{request.get_host()}/sitemap.xml\n"
+        )
+    return HttpResponse(body, content_type="text/plain")

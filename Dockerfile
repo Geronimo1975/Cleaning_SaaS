@@ -24,7 +24,7 @@ COPY . .
 
 # Utilizator neprivilegiat: procesul nu are nevoie de root, iar `private/`
 # conține acte de identitate.
-RUN useradd --system --uid 1001 app \
+RUN useradd --system --uid 1001 --home-dir /home/app --create-home app \
  && mkdir -p /app/staticfiles /app/media /app/private \
  && chown -R app:app /app
 USER app

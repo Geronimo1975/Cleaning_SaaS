@@ -21,6 +21,23 @@ from apps.marketplace.models import Frequency, ServiceRequest
 from apps.taxonomy.models import ServiceCategory
 
 
+@pytest.fixture(autouse=True)
+def operator_declarat(settings):
+    """
+    Lumea implicită a testelor are un operator declarat.
+
+    Fără el, poarta din `apps.legal.publication` pune `noindex` peste tot și
+    oprește notificările către Google — corect în producție, dar ar cere ca
+    fiecare test de SEO să repete aceeași configurare. Testele care verifică
+    tocmai starea neconfigurată o cer explicit, punând `settings.OPERATOR = {}`.
+    """
+    settings.OPERATOR = {
+        "name": "Nordclean", "legal_form": "GmbH", "street": "Ulzburger Str. 40",
+        "postal_code": "22846", "city": "Norderstedt", "email": "info@example.de",
+        "phone": "+49 40 1234567", "represented_by": "Klaus Meyer",
+    }
+
+
 @pytest.fixture
 def norderstedt(db):
     return Locality.objects.get(slug="norderstedt")

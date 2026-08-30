@@ -72,6 +72,7 @@ class TestIndexingQueue:
     tranzacția care publică, iar trimiterea e o operațiune separată.
     """
 
+
     def _publish(self, client, employer, job):
         client.force_login(employer.user)
         return client.post(f"/dashboard/anunturi/{job.pk}/publicare/")
