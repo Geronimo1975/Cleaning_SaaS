@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "django_htmx",
     # local
+    "apps.common",
     "apps.accounts",
     "apps.geo",
     "apps.taxonomy",

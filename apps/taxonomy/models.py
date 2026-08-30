@@ -1,8 +1,10 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from apps.common.models import TimeStampedModel
 
-class ServiceCategory(models.Model):
+
+class ServiceCategory(TimeStampedModel):
     """
     Adâncime maximă 2. Doar frunzele sunt selectabile.
     Vocabular comun între profil, anunț și — în v2 — cererea de serviciu.

@@ -1,5 +1,7 @@
 from django.db import models
 
+from apps.common.models import TimeStampedModel
+
 
 class Region(models.Model):
     """Bundesland. Listă închisă, populată prin data migration."""
@@ -17,7 +19,7 @@ class Region(models.Model):
         return self.name
 
 
-class Locality(models.Model):
+class Locality(TimeStampedModel):
     """
     Localitate. NICIODATĂ text liber — text liber distruge filtrarea și SEO-ul
     pe „Reinigungskraft {oraș}". Se activează progresiv prin `is_active`.

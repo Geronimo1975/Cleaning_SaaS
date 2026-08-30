@@ -1,6 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from apps.common.models import TimeStampedModel
+
 from .enums import EntityType
 from .models import Account
 
@@ -12,7 +14,7 @@ class Availability(models.TextChoices):
     FLEXIBLE = "FLEXIBLE", "Flexibil"
 
 
-class WorkerProfile(models.Model):
+class WorkerProfile(TimeStampedModel):
     account = models.OneToOneField(
         Account, on_delete=models.CASCADE, related_name="worker_profile"
     )
@@ -39,7 +41,7 @@ class WorkerProfile(models.Model):
             raise ValidationError("WorkerProfile este valabil doar pentru persoane fizice.")
 
 
-class CompanyProfile(models.Model):
+class CompanyProfile(TimeStampedModel):
     account = models.OneToOneField(
         Account, on_delete=models.CASCADE, related_name="company_profile"
     )

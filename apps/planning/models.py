@@ -17,8 +17,10 @@ from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from apps.common.models import TimeStampedModel
 
-class Site(models.Model):
+
+class Site(TimeStampedModel):
     """Obiectivul de curățat: o clădire, o reședință, un sediu."""
 
     account = models.ForeignKey(
@@ -39,7 +41,7 @@ class Site(models.Model):
         return self.name
 
 
-class Zone(models.Model):
+class Zone(TimeStampedModel):
     """
     O suprafață cu propriul ritm de curățenie. Granularitatea la care se face
     planificarea — nu clădirea întreagă, ci „etajul 2, coridor + băi".
@@ -213,7 +215,7 @@ class ShiftStatus(models.TextChoices):
     MISSED = "MISSED", "Neefectuat"
 
 
-class Shift(models.Model):
+class Shift(TimeStampedModel):
     plan = models.ForeignKey(ShiftPlan, on_delete=models.CASCADE, related_name="shifts")
     zone = models.ForeignKey(Zone, on_delete=models.PROTECT, related_name="shifts")
     worker = models.ForeignKey(

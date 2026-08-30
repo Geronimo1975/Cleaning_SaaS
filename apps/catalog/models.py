@@ -15,8 +15,10 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
 
+from apps.common.models import TimeStampedModel
 
-class ProductCategory(models.Model):
+
+class ProductCategory(TimeStampedModel):
     parent = models.ForeignKey(
         "self", null=True, blank=True, on_delete=models.PROTECT, related_name="children"
     )

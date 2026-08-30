@@ -20,6 +20,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
+from apps.common.models import TimeStampedModel
+
 
 class EngagementModel(models.TextChoices):
     DIRECT_EMPLOYMENT = "DIRECT", "Angajare directă de către unitate"
@@ -54,7 +56,7 @@ class ComplianceIssue:
         return self.message
 
 
-class WageFloor(models.Model):
+class WageFloor(TimeStampedModel):
     """
     Praguri salariale legale, cu valabilitate în timp — NU constante în cod.
     Se schimbă anual și trebuie actualizate fără deploy.
@@ -89,7 +91,7 @@ class WageFloor(models.Model):
         return row.hourly_amount if row else None
 
 
-class MinijobThreshold(models.Model):
+class MinijobThreshold(TimeStampedModel):
     """
     Geringfügigkeitsgrenze. Din 2022 e dinamică: Mindestlohn × 130 / 3, rotunjită
     în sus. Depășirea o singură lună nu strică nimic; depășirea previzibilă
