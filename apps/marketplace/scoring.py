@@ -84,9 +84,11 @@ def score_offers(request, offers=None) -> list[ScoredOffer]:
     offers = list(
         offers
         if offers is not None
-        else request.offers.filter(status=OfferStatus.SUBMITTED).select_related(
+        else request.offers.filter(status=OfferStatus.SUBMITTED)
+        .select_related(
             "provider__worker_profile", "provider__company_profile", "provider__locality"
         )
+        .prefetch_related("provider__areas")
     )
     if not offers:
         return []
@@ -135,7 +137,10 @@ def _proximity_score(provider, request) -> Decimal:
     """
     if provider.locality_id == request.locality_id:
         return Decimal("1")
-    if provider.areas.filter(locality_id=request.locality_id).exists():
+    # `areas` e reverse FK: fără prefetch, `.filter().exists()` ar fi o
+    # interogare per prestator, exact pe lista lungă. Apelanții fac
+    # prefetch_related("areas"), deci aici iterăm cache-ul.
+    if any(area.locality_id == request.locality_id for area in provider.areas.all()):
         return Decimal("0.7")
     return Decimal("0.2")
 
@@ -200,6 +205,7 @@ def suggest_providers(request, limit: int = 10):
         .exclude(pk=request.client_id)
         .distinct()
         .select_related("locality", "worker_profile", "company_profile")
+        .prefetch_related("areas")
     )
 
     ranked = []

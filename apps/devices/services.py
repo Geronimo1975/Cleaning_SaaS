@@ -141,13 +141,22 @@ def find_discrepancies(account, start, end) -> list[Discrepancy]:
         .select_related("zone__site", "worker")
     )
 
+    # Obiectivele care AU echipamente active, o singură dată. Interogat în buclă
+    # (cum era), asta însemna un EXISTS per tură — 200 de ture pontate într-o
+    # săptămână, 200 de interogări în plus.
+    sites_with_devices = set(
+        Device.objects.filter(
+            account=account, status=DeviceStatus.ACTIVE, site__isnull=False
+        ).values_list("site_id", flat=True)
+    )
+
     results = []
     for shift in shifts:
         sessions = list(shift.telemetry_sessions.all())
         device_minutes = sum(s.runtime_minutes for s in sessions)
 
         if not sessions:
-            if _site_has_devices(shift):
+            if shift.zone.site_id in sites_with_devices:
                 results.append(Discrepancy(
                     shift=shift, reported_minutes=shift.actual_minutes,
                     device_minutes=0, ratio=None, kind="NO_TELEMETRY",
@@ -177,24 +186,30 @@ def find_discrepancies(account, start, end) -> list[Discrepancy]:
     return results
 
 
-def _site_has_devices(shift: Shift) -> bool:
-    return Device.objects.filter(
-        site_id=shift.zone.site_id, status=DeviceStatus.ACTIVE
-    ).exists()
-
-
 def utilisation(account, start, end) -> list[dict]:
     """Cât e folosit fiecare echipament — baza deciziei de a mai cumpăra sau nu."""
+    # Un singur SELECT pentru toate sesiunile din interval, grupate în Python.
+    # Varianta cu `device.sessions.filter(...)` în buclă costa o interogare per
+    # echipament.
+    devices = list(
+        Device.objects.filter(account=account).exclude(status=DeviceStatus.RETIRED)
+    )
+    by_device: dict[int, list[TelemetrySession]] = {d.pk: [] for d in devices}
+    sessions = TelemetrySession.objects.filter(
+        device__in=devices, started_at__date__gte=start, started_at__date__lte=end
+    )
+    for session in sessions:
+        by_device[session.device_id].append(session)
+
     rows = []
-    for device in Device.objects.filter(account=account).exclude(status=DeviceStatus.RETIRED):
-        sessions = device.sessions.filter(started_at__date__gte=start, started_at__date__lte=end)
-        total = sum(s.runtime_minutes for s in sessions)
+    for device in devices:
+        found = by_device[device.pk]
         rows.append({
             "device": device,
-            "sessions": len(sessions),
-            "runtime_minutes": total,
-            "area_sqm": sum(s.area_sqm or 0 for s in sessions),
-            "errors": sum(1 for s in sessions if s.error_code),
+            "sessions": len(found),
+            "runtime_minutes": sum(s.runtime_minutes for s in found),
+            "area_sqm": sum(s.area_sqm or 0 for s in found),
+            "errors": sum(1 for s in found if s.error_code),
             "online": device.is_online,
         })
     return sorted(rows, key=lambda r: -r["runtime_minutes"])
