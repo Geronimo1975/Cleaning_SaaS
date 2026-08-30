@@ -45,7 +45,10 @@ services:
     expose:
       - "8000"
     healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request as u; u.urlopen('http://127.0.0.1:8000/healthz/')\""]
+      # Antetul Host vine din APP_HOST: Django respinge `127.0.0.1` prin
+      # ALLOWED_HOSTS și healthcheck-ul ar raporta „unhealthy" pe o aplicație
+      # perfect sănătoasă. Slăbirea ALLOWED_HOSTS ar fi fost soluția greșită.
+      test: ["CMD-SHELL", "python -c \"import os,urllib.request as u; u.urlopen(u.Request('http://127.0.0.1:8000/healthz/', headers={'Host': os.environ['APP_HOST']}))\""]
       interval: 30s
       timeout: 5s
       retries: 3
