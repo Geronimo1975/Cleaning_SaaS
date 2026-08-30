@@ -30,7 +30,7 @@ There is no `pip` inside the venv and no `requirements.txt`; the venv is pre-bui
 .venv/bin/python manage.py migrate
 .venv/bin/python manage.py runserver 8099 --noreload
 
-.venv/bin/python -m pytest -q                                  # 230 tests
+.venv/bin/python -m pytest -q                                  # 324 tests
 .venv/bin/python -m pytest tests/test_planning.py              # one file
 .venv/bin/python -m pytest tests/test_planning.py::TestGenerateWeekPlan::test_x   # one test
 .venv/bin/python -m pytest -k "minijob and not tour"           # by expression
@@ -41,19 +41,37 @@ There is no `pip` inside the venv and no `requirements.txt`; the venv is pre-bui
 
 - `pytest.ini` sets `--reuse-db`. After adding a migration, drop the cached test DB
   (`rm -f .pytest_cache/… ` is not enough — use `--create-db`).
-- `pyproject.toml` configures ruff (`line-length = 100`, `py312`) but **ruff is not installed**,
-  in the venv or on PATH. There is no lint step you can run today.
+- `pyproject.toml` configures ruff (`line-length = 100`, `py312`) but ruff is not in the venv.
+  Run it through `uvx ruff check apps config tests --select E,F,I` — the wider default rule
+  set flags ~250 issues that are mostly Django idiom (mutable class attributes on `ModelAdmin`),
+  so keep the explicit `--select`.
 - Python 3.12.13, Django 5.2.17 (`pyproject.toml` only pins `>=5.1,<6.0`).
-- SQLite by default. `DATABASE_URL` switches to Postgres via `dj_database_url`, but neither
-  `psycopg` nor `dj-database-url` is installed — setting it crashes `config/settings.py`.
-- The repo is **not under git**. `git init` before anything that assumes version control.
+- **Postgres is the default**, resolved through `dj_database_url.config()` with
+  `CONN_MAX_AGE=600`. Without `DATABASE_URL`, it falls back to SQLite for local convenience —
+  but CI and production both run Postgres, and so should anything you trust.
+- Optional extras in `pyproject.toml`: `indexing` (google-auth, for the Indexing API),
+  `export` (openpyxl, for the Reinigungsplan XLSX), `monitoring` (sentry-sdk). Missing extras
+  degrade gracefully — they never stop the app from booting.
+- The repo **is** under git. Author commits normally; the working tree is shared with other
+  sessions, so run `git log --oneline -3` and `git status` before writing files.
 
 ## Architecture
 
-Server-rendered Django. No API layer, no JS build step, no `admin.py` anywhere
-(`django.contrib.admin` is installed and routed but has zero registrations — never tell a
-user to "change it in the admin"). Templates live only in `/templates/`, never per-app.
-`django_htmx` is installed but no template uses `hx-*` yet.
+Server-rendered Django. No API layer (except one device-ingestion endpoint in
+`apps/devices/api.py`, authenticated by hashed device token), no JS build step. Templates live
+only in `/templates/`, never per-app. `django_htmx` is installed but no template uses `hx-*` yet.
+
+**The admin is for compliance, not for operations.** Every app has an `admin.py`, but the
+division is deliberate: work that belongs to a user — posting a job, planning a week, awarding
+an offer, signing a contract — happens in the dashboard, and you should never answer "change it
+in the admin". The admin exists for the things a platform *operator* does and nothing else can:
+reviewing `VerificationDocument`s (the files are private-storage, so `file` is readonly and
+never in `list_display`), reading `ConsentRecord` and `ShiftEvent` journals (registered
+read-only — an editable consent record is not evidence), updating `WageFloor` /
+`MinijobThreshold` when the law changes, activating a `Locality` or `ServiceCategory`, and
+re-queueing a failed `IndexingTask`. A signed `ContractDraft` becomes fully readonly and
+undeletable; `Device.token_hash` is excluded from the form. `tests/test_admin.py` opens every
+changelist and fails if a local model has neither an admin nor an explicit exemption.
 
 ### Identity: `User` authenticates, `Account` does everything else
 
@@ -202,15 +220,48 @@ categories are always `PROTECT` FKs, never free text; free text destroys both fi
 
 ## Tests
 
-`tests/` (14 files, 230 tests), pytest-django, fixtures in `tests/conftest.py` — real seeded
+`tests/` (19 files, 324 tests), pytest-django, fixtures in `tests/conftest.py` — real seeded
 localities (`norderstedt`, `pinneberg`) and categories (`treppenhausreinigung`,
 `haushaltshilfe`) fetched by slug, plus `employer` / `worker` / `client_account` /
 `make_provider` / `signed_contract` / `make_offer` factories. Test names and docstrings are
 Romanian. `tests/test_isolation.py` is the cross-account authorization contract;
-`tests/test_visibility.py` guards `FIELD_POLICY`.
+`tests/test_visibility.py` guards `FIELD_POLICY`; `tests/test_queries.py` asserts that query
+counts stay *constant* in N for the three list-shaped code paths that used to be N+1
+(`find_discrepancies`, `utilisation`, `suggest_providers`) — it compares two sizes rather than
+pinning a number, so a legitimate added `select_related` does not break it.
 
 ## Storage
 
 `MEDIA_ROOT` is served directly by Nginx without passing through Django, so verification
 documents (ID, Führungszeugnis) go to the separate `"private"` storage alias backed by
-`PRIVATE_STORAGE_ROOT`, outside the served root, behind an ownership-checking view.
+`PRIVATE_STORAGE_ROOT`, outside the served root, behind an ownership-checking view. The
+`private` volume is deliberately *not* mounted into the Nginx container — if a
+`location /private/` ever appears in `deploy/nginx.conf`, that is a security bug, not an
+optimisation.
+
+## Observability
+
+Everything logs to stdout; containers have no log files. `django.db.backends` stays at
+`WARNING` even when `LOG_LEVEL=DEBUG` — turn SQL on deliberately with `SQL_DEBUG=1` when you
+are actually hunting an N+1. `django.request` is at `ERROR`: 4xx is noise, 5xx is an incident.
+Sentry activates only with `SENTRY_DSN` set and the `monitoring` extra installed, always with
+`send_default_pii=False` — an error report carrying provider phone numbers is a GDPR problem,
+not a debugging aid.
+
+`/healthz/` (`config/health.py`, routed before every public page so it answers even while the
+§5 TMG publication gate is closed) checks the database *and* the age of the indexing queue.
+That second check is the point: `flush_indexing` being dead for three weeks looks exactly like
+a healthy site from the outside. Only the database decides the HTTP code (503); a stale queue
+reports `degraded` on 200, because restarting the container does not fix it. Note for compose
+healthchecks: reach it with the real `Host` header — `ALLOWED_HOSTS` rejects `127.0.0.1` and
+you get a 400 that reads as "unhealthy".
+
+## Shared model bases
+
+`apps/common.TimeStampedModel` is applied to the 10 models that genuinely get edited over time
+(`Site`, `Zone`, `Shift`, `WorkerProfile`, `CompanyProfile`, `WageFloor`, `MinijobThreshold`,
+`Locality`, `ServiceCategory`, `ProductCategory`). It is deliberately **not** applied to
+append-only journals (`ConsentRecord`, `ShiftEvent`, `ContractSignature`, `IndexingTask` —
+their `save()` refuses updates, so an `updated_at` would be an invitation to break that), to
+join tables (`AccountService`, `ServiceArea`, `TourStop`), or to models with their own clock
+(`TelemetrySession`, `User`). `tests/test_common.py` pins both lists.
