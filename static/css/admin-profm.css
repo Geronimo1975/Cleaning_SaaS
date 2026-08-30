@@ -1,0 +1,202 @@
+/* ==========================================================================
+   ProFM — tema panoului de operare
+   ==========================================================================
+   Retematizează adminul Django prin variabilele lui proprii, în locul unei
+   rescrieri de foaie de stil. Motivul e întreținerea: adminul e generat de
+   Django și se schimbă la fiecare versiune. Cine îi rescrie CSS-ul ajunge
+   să-l repare la fiecare upgrade; cine îi setează variabilele nu.
+
+   Paleta e aceeași cu a aplicației (slate), definită o singură dată.
+   Fără fonturi externe — LG München I, 3 O 17493/20.
+   ========================================================================== */
+
+html[data-theme="light"], :root {
+  --primary: #0f172a;
+  --secondary: #0f172a;
+  --accent: #0369a1;
+  --primary-fg: #f8fafc;
+
+  --body-fg: #1e293b;
+  --body-bg: #f8fafc;
+  --body-quiet-color: #64748b;
+  --body-medium-color: #475569;
+  --body-loud-color: #020617;
+
+  --header-color: #cbd5e1;
+  --header-branding-color: #f8fafc;
+  --header-bg: #0f172a;
+  --header-link-color: #f8fafc;
+
+  --breadcrumbs-fg: #64748b;
+  --breadcrumbs-link-fg: #334155;
+  --breadcrumbs-bg: #ffffff;
+
+  --link-fg: #0369a1;
+  --link-hover-color: #075985;
+  --link-selected-fg: #0f172a;
+
+  --hairline-color: #e2e8f0;
+  --border-color: #e2e8f0;
+
+  --error-fg: #dc2626;
+
+  --message-success-bg: #f0fdf4;
+  --message-warning-bg: #fffbeb;
+  --message-error-bg: #fef2f2;
+
+  --darkened-bg: #f1f5f9;
+  --selected-bg: #e2e8f0;
+  --selected-row: #f0f9ff;
+
+  --button-fg: #f8fafc;
+  --button-bg: #0f172a;
+  --button-hover-bg: #1e293b;
+  --default-button-bg: #0369a1;
+  --default-button-hover-bg: #075985;
+  --close-button-bg: #64748b;
+  --close-button-hover-bg: #475569;
+  --delete-button-bg: #dc2626;
+  --delete-button-hover-bg: #b91c1c;
+
+  --object-tools-fg: #f8fafc;
+  --object-tools-bg: #334155;
+  --object-tools-hover-bg: #0f172a;
+
+  --font-family-primary: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+      Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-monospace: ui-monospace, SFMono-Regular, "SF Mono", Menlo,
+      Consolas, monospace;
+
+  --profm-radius: 0.5rem;
+  --profm-radius-sm: 0.375rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --body-bg: #020617;
+    --body-fg: #e2e8f0;
+    --body-quiet-color: #94a3b8;
+    --body-loud-color: #f8fafc;
+    --header-bg: #0f172a;
+    --breadcrumbs-bg: #0f172a;
+    --breadcrumbs-fg: #94a3b8;
+    --breadcrumbs-link-fg: #cbd5e1;
+    --hairline-color: #1e293b;
+    --border-color: #1e293b;
+    --darkened-bg: #0f172a;
+    --selected-bg: #1e293b;
+    --selected-row: #172554;
+    --link-fg: #38bdf8;
+    --link-hover-color: #7dd3fc;
+    --object-tools-bg: #1e293b;
+  }
+}
+html[data-theme="dark"] {
+  --body-bg: #020617;
+  --body-fg: #e2e8f0;
+  --border-color: #1e293b;
+  --hairline-color: #1e293b;
+  --darkened-bg: #0f172a;
+  --selected-bg: #1e293b;
+  --link-fg: #38bdf8;
+}
+
+/* --- Formă: adminul Django e colțuros și lipit; shadcn e rotunjit și aerisit */
+
+body { font-size: 0.875rem; line-height: 1.55; }
+
+#header {
+  padding: 0.9rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+#branding h1 { font-weight: 600; letter-spacing: -0.015em; font-size: 1.05rem; }
+
+div.breadcrumbs {
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.65rem 2rem;
+  font-size: 0.8125rem;
+}
+
+#content { padding: 1.5rem 2rem 2rem; }
+#content-main > h1, #content h1 { font-weight: 600; letter-spacing: -0.015em; }
+
+/* Carduri: modulele adminul le desenează ca blocuri plate */
+.module,
+#changelist,
+.inline-group,
+#content-related .module {
+  border: 1px solid var(--border-color);
+  border-radius: var(--profm-radius);
+  overflow: hidden;
+  box-shadow: 0 1px 2px 0 rgb(2 6 23 / 0.04);
+}
+.module { background: #ffffff; }
+@media (prefers-color-scheme: dark) { .module { background: #0f172a; } }
+
+.module > h2, .module caption, .inline-group h2 {
+  background: var(--darkened-bg);
+  color: var(--body-loud-color);
+  font-size: 0.75rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Tabele */
+#changelist table thead th { background: var(--darkened-bg); font-size: 0.75rem; }
+#changelist table thead th a { color: var(--body-quiet-color); }
+#changelist-table tbody tr:hover > * { background: var(--darkened-bg); }
+th, td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--hairline-color); }
+
+/* Butoane */
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+  border-radius: var(--profm-radius-sm);
+  font-weight: 500; font-size: 0.8125rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid transparent;
+  transition: background-color .15s ease;
+}
+.submit-row { border-radius: var(--profm-radius); border: 1px solid var(--border-color); }
+.object-tools a { border-radius: 999px; font-size: 0.6875rem; letter-spacing: .03em; }
+
+/* Câmpuri */
+input[type=text], input[type=password], input[type=email], input[type=url],
+input[type=number], input[type=tel], textarea, select, .vTextField {
+  border: 1px solid var(--border-color);
+  border-radius: var(--profm-radius-sm);
+  padding: 0.45rem 0.65rem;
+  background: var(--body-bg);
+  color: var(--body-fg);
+}
+input:focus, textarea:focus, select:focus {
+  outline: 2px solid var(--primary); outline-offset: 1px; border-color: var(--primary);
+}
+
+/* Mesaje și alerte */
+ul.messagelist li {
+  border-radius: var(--profm-radius-sm);
+  border: 1px solid var(--border-color);
+  border-left-width: 3px;
+  padding: 0.7rem 1rem 0.7rem 2.2rem;
+  font-size: 0.8125rem;
+}
+ul.messagelist li.success { border-left-color: #15803d; }
+ul.messagelist li.warning { border-left-color: #b45309; }
+ul.messagelist li.error   { border-left-color: #dc2626; }
+
+/* Bara laterală de acțiuni recente */
+#content-related { border-radius: var(--profm-radius); }
+#content-related .module h2 { border-radius: 0; }
+
+/* Autentificare */
+.login #container {
+  border: 1px solid var(--border-color);
+  border-radius: var(--profm-radius);
+  box-shadow: 0 4px 16px rgb(2 6 23 / 0.06);
+  overflow: hidden;
+}
+.login #header { border-radius: 0; }
+
+/* Paginare, filtre */
+#changelist-filter { border-radius: var(--profm-radius); }
+.paginator { border-top: 1px solid var(--border-color); padding: 0.75rem 1rem; }

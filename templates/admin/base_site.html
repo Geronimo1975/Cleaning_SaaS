@@ -1,0 +1,27 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{# Tema ProFM peste adminul Django.
+
+   Extinde `admin/base.html`, nu `admin/base_site.html`: fișierul nostru poartă
+   deja numele celui din urmă și îl umbrește, deci extinderea lui ar intra în
+   recursivitate. Conținutul de mai jos reproduce originalul, plus foaia de stil.
+
+   `extrastyle` se încarcă după CSS-ul propriu al adminului, deci variabilele
+   noastre au ultimul cuvânt. #}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/admin-profm.css' %}">
+{% endblock %}
+
+{% block branding %}
+<div id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></div>
+{% if user.is_anonymous %}
+  {% include "admin/color_theme_toggle.html" %}
+{% endif %}
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
