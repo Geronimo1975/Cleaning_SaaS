@@ -17,6 +17,8 @@ dependencies = [
 indexing = ["google-auth>=2.35", "requests>=2.32"]
 # Export Reinigungsplan.
 export = ["openpyxl>=3.1"]
+# Error tracking. Fără el, SENTRY_DSN e ignorat cu un avertisment în log.
+monitoring = ["sentry-sdk>=2.14"]
 
 [tool.ruff]
 line-length = 100

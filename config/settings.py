@@ -194,3 +194,95 @@ if not DEBUG:
 # Google Indexing API — calea către fișierul JSON al service account-ului.
 # Gol = notificările se acumulează în coadă și nu se trimit (dev/test).
 GOOGLE_INDEXING_CREDENTIALS = os.getenv("GOOGLE_INDEXING_CREDENTIALS", "")
+
+# --- Cache -----------------------------------------------------------------
+#
+# Fără Redis configurat, cache local în proces. E suficient pentru un singur
+# container, dar NU e partajat: cu mai multe procese gunicorn, fiecare are
+# propriul cache. Orice se bazează pe cache partajat (rate limiting, invalidare
+# între workeri) are nevoie de REDIS_URL.
+if os.getenv("REDIS_URL"):
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": os.environ["REDIS_URL"],
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "cleaning-saas",
+        }
+    }
+
+# --- Logging ---------------------------------------------------------------
+#
+# Totul pe stdout, într-o singură linie per eveniment: containerele nu au
+# fișiere de log, iar Docker/journald colectează stdout. Nivelul se schimbă
+# din mediu, fără deploy.
+#
+# `django.db.backends` rămâne pe WARNING chiar și la DEBUG global — pe DEBUG
+# ar loga fiecare interogare SQL și ar face restul ilizibil. Se pornește
+# explicit cu SQL_DEBUG=1 când chiar cauți un N+1.
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {
+            "format": "{asctime} {levelname} {name} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        },
+    },
+    "root": {"handlers": ["console"], "level": LOG_LEVEL},
+    "loggers": {
+        "django": {"handlers": ["console"], "level": LOG_LEVEL, "propagate": False},
+        # 4xx-urile aplicației sunt zgomot; 5xx-urile sunt incidente.
+        "django.request": {"handlers": ["console"], "level": "ERROR", "propagate": False},
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": "DEBUG" if os.getenv("SQL_DEBUG") == "1" else "WARNING",
+            "propagate": False,
+        },
+        # Codul propriu: implicit INFO, ca publicările, semnăturile și golirea
+        # cozii de indexare să lase urmă.
+        "apps": {"handlers": ["console"], "level": LOG_LEVEL, "propagate": False},
+    },
+}
+
+# --- Error tracking --------------------------------------------------------
+#
+# Opțional și izolat: fără DSN sau fără pachetul instalat, aplicația pornește
+# neschimbată. `send_default_pii=False` e obligatoriu aici — un raport de
+# eroare care cară adrese și telefoane de prestatori e o problemă DSGVO, nu un
+# ajutor la depanare.
+SENTRY_DSN = os.getenv("SENTRY_DSN", "")
+if SENTRY_DSN and not DEBUG:
+    try:
+        import sentry_sdk
+
+        sentry_sdk.init(
+            dsn=SENTRY_DSN,
+            environment=os.getenv("SENTRY_ENVIRONMENT", "production"),
+            traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1")),
+            send_default_pii=False,
+        )
+    except ImportError:  # pachetul e extra opțional
+        import logging
+
+        logging.getLogger("apps").warning(
+            "SENTRY_DSN e setat, dar sentry-sdk nu e instalat. "
+            'Instalează extra-ul: uv pip install -e ".[monitoring]"'
+        )
+
+# Cât timp poate sta o notificare de indexare în coadă înainte ca /healthz/ să
+# o considere blocată. Serviciul `cron` golește coada la 15 minute.
+INDEXING_STALE_MINUTES = int(os.getenv("INDEXING_STALE_MINUTES", "60"))

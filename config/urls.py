@@ -8,11 +8,15 @@ from django.views.generic import TemplateView
 
 from apps.legal.views import robots_txt
 
+from .health import healthz
 from .sitemaps import SITEMAPS
 
 from apps.devices.api import ingest as telemetry_ingest
 
 urlpatterns = [
+    # Înaintea oricărei rute publice: healthcheck-ul trebuie să răspundă și
+    # când poarta de publicare (§5 TMG) blochează restul site-ului.
+    path("healthz/", healthz, name="healthz"),
     path("admin/", admin.site.urls),
     path("sitemap.xml", sitemap_index, {"sitemaps": SITEMAPS}, name="sitemap_index"),
     path(
