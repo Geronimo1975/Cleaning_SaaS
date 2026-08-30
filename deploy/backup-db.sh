@@ -9,8 +9,17 @@ KEEP_DAYS="${KEEP_DAYS:-30}"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 cd "$APP_DIR"
-# shellcheck disable=SC1091
-set -a; source .env; set +a
+
+# NU `source .env`: valorile pot conține spații (ex. OPERATOR_NAME=George
+# Sebastian Cucuiet), iar shell-ul le-ar interpreta ca argumente sau comenzi.
+# Docker Compose citește același fișier fără shell, deci nu are problema asta.
+env_value() {
+    grep -E "^$1=" .env | head -1 | cut -d= -f2-
+}
+DB_USER=$(env_value DB_USER)
+DB_NAME=$(env_value DB_NAME)
+: "${DB_USER:?DB_USER lipsește din .env}"
+: "${DB_NAME:?DB_NAME lipsește din .env}"
 
 mkdir -p "$BACKUP_DIR"
 
