@@ -13,6 +13,14 @@ from .sitemaps import SITEMAPS
 
 from apps.devices.api import ingest as telemetry_ingest
 
+# Identitatea panoului de operare. Titlul implicit („Django-Systemverwaltung")
+# spune vizitatorului ce framework folosim și nimic despre ce administrează.
+# Textele sunt în germană, ca restul a ceea ce vede cineva care lucrează cu
+# autoritățile germane pe baza acestor date.
+admin.site.site_header = "ProFM — Betreiberkonsole"
+admin.site.site_title = "ProFM"
+admin.site.index_title = "Verwaltung von Stammdaten und Nachweisen"
+
 urlpatterns = [
     # Înaintea oricărei rute publice: healthcheck-ul trebuie să răspundă și
     # când poarta de publicare (§5 TMG) blochează restul site-ului.
