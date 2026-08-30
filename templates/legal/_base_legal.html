@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+{% if missing %}
+<section style="border:2px solid #b00;padding:1rem;margin-bottom:2rem">
+  <h2>⚠ Diese Seite ist noch nicht rechtsgültig</h2>
+  <p>Folgende Pflichtangaben fehlen in der Konfiguration
+     (Umgebungsvariablen <code>OPERATOR_*</code>):</p>
+  <ul>{% for item in missing %}<li>{{ item }}</li>{% endfor %}</ul>
+  <p>Ein Impressum mit unvollständigen oder erfundenen Angaben verstößt gegen
+     § 5 TMG. Die Seite darf erst öffentlich genutzt werden, wenn diese Werte
+     gesetzt sind.</p>
+</section>
+{% endif %}
+{% block legal %}{% endblock %}
+<hr>
+<p><a href="{% url 'legal:impressum' %}">Impressum</a> ·
+   <a href="{% url 'legal:datenschutz' %}">Datenschutz</a> ·
+   <a href="{% url 'legal:agb' %}">AGB</a></p>
+{% endblock %}

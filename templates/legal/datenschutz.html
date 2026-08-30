@@ -1,0 +1,70 @@
+{% extends "legal/_base_legal.html" %}
+{% block title %}Datenschutzerklärung{% endblock %}
+{% block legal %}
+<h1>Datenschutzerklärung</h1>
+
+<h2>1. Verantwortlicher</h2>
+<p>{{ operator.name|default:"—" }}, {{ operator.street|default:"—" }},
+   {{ operator.postal_code|default:"" }} {{ operator.city|default:"" }}<br>
+   E-Mail: {{ operator.email|default:"—" }}
+   {% if operator.dpo_email %}<br>Datenschutzbeauftragter: {{ operator.dpo_email }}{% endif %}</p>
+
+<h2>2. Welche Daten wir verarbeiten</h2>
+<table>
+  <tr><th>Kategorie</th><th>Zweck</th><th>Rechtsgrundlage</th><th>Löschung</th></tr>
+  <tr><td>Konto- und Profildaten (Name, E-Mail, Ort, Telefon)</td>
+      <td>Betrieb des Kontos, Vermittlung</td>
+      <td>Art. 6 Abs. 1 lit. b DSGVO (Vertrag)</td>
+      <td>mit Kontolöschung</td></tr>
+  <tr><td>Öffentliches Profil</td>
+      <td>Auffindbarkeit als Dienstleister</td>
+      <td>Art. 6 Abs. 1 lit. a DSGVO (Einwilligung, jederzeit widerrufbar)</td>
+      <td>sofort bei Widerruf</td></tr>
+  <tr><td>Bewerbungen und Angebote</td>
+      <td>Anbahnung eines Vertrags</td>
+      <td>Art. 6 Abs. 1 lit. b DSGVO</td>
+      <td>nach Zweckfortfall</td></tr>
+  <tr><td>Verifizierungsdokumente (Ausweis, Führungszeugnis, Gewerbeanmeldung)</td>
+      <td>Prüfung der Zuverlässigkeit</td>
+      <td>Art. 6 Abs. 1 lit. b und f DSGVO</td>
+      <td>nach der Prüfung, spätestens zum gespeicherten Löschdatum</td></tr>
+  <tr><td>Arbeitszeiten (Beginn, Ende, Korrekturen)</td>
+      <td>Gesetzliche Aufzeichnungspflicht</td>
+      <td>Art. 6 Abs. 1 lit. c DSGVO i. V. m. § 3 Abs. 2 Nr. 1 ArbSchG,
+          § 16 Abs. 2 ArbZG</td>
+      <td>mindestens 2 Jahre, dann Löschung</td></tr>
+  <tr><td>Gerätetelemetrie (Laufzeit, Fläche)</td>
+      <td>Leistungsnachweis, Plausibilitätsprüfung</td>
+      <td>Art. 6 Abs. 1 lit. f DSGVO</td>
+      <td>nach Zweckfortfall</td></tr>
+</table>
+
+<h2>3. Verifizierungsdokumente</h2>
+<p>Diese Dokumente werden getrennt von allen öffentlich ausgelieferten Dateien
+   gespeichert und ausschließlich über eine zugriffsgeschützte Adresse
+   ausgeliefert. Sie sind weder über eine öffentliche URL noch über
+   Suchmaschinen erreichbar. Zugriff haben nur die betroffene Person selbst und
+   die prüfenden Personen des Betreibers.</p>
+
+<h2>4. Arbeitszeiterfassung</h2>
+<p>Erfasste Arbeitszeiten sind revisionssicher: Einträge werden nicht
+   überschrieben. Eine Korrektur erzeugt einen zusätzlichen, protokollierten
+   Eintrag mit Urheber und Begründung. Standortdaten werden nicht erhoben.</p>
+
+<h2>5. Empfänger</h2>
+<p>Eine Übermittlung an Dritte erfolgt nur, soweit sie zur Durchführung des
+   Vertrags erforderlich ist — insbesondere die Weitergabe von Kontaktdaten an
+   die jeweils andere Vertragspartei nach Zuschlag bzw. Bewerbung. Vor diesem
+   Zeitpunkt bleiben Kontakt- und Adressdaten verborgen.</p>
+
+<h2>6. Ihre Rechte</h2>
+<p>Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17),
+   Einschränkung (Art. 18), Datenübertragbarkeit (Art. 20), Widerspruch
+   (Art. 21) sowie Widerruf erteilter Einwilligungen mit Wirkung für die
+   Zukunft. Beschwerderecht bei einer Aufsichtsbehörde, für Schleswig-Holstein
+   beim Unabhängigen Landeszentrum für Datenschutz (ULD).</p>
+
+<h2>7. Cookies</h2>
+<p>Es werden ausschließlich technisch notwendige Cookies eingesetzt (Session
+   und CSRF-Schutz). Kein Tracking, keine Analyse-Dienste Dritter.</p>
+{% endblock %}

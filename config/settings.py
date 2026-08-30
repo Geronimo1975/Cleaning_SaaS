@@ -1,7 +1,9 @@
 from pathlib import Path
 
-from dotenv import load_dotenv
 import os
+
+import dj_database_url
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
@@ -38,6 +40,7 @@ INSTALLED_APPS = [
     "apps.devices",
     "apps.marketplace",
     "apps.cooperative",
+    "apps.legal",
     "apps.dashboard",
 ]
 
@@ -74,16 +77,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+# Postgres e baza de date a proiectului; SQLite e doar comoditate locală.
+# Ordinea contează: implicitul trebuie să fie ce rulează în producție, altfel
+# diferențele (constrângeri, tipuri, tranzacții) apar abia la deploy.
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.config(
+        default=os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
-if os.getenv("DATABASE_URL"):  # producție: Postgres
-    import dj_database_url  # type: ignore
-
-    DATABASES["default"] = dj_database_url.parse(os.environ["DATABASE_URL"])
 
 AUTH_USER_MODEL = "accounts.User"
 AUTHENTICATION_BACKENDS = [
@@ -135,6 +138,24 @@ STORAGES = {
         "OPTIONS": {"location": str(PRIVATE_STORAGE_ROOT)},
     },
     "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
+
+# Datele operatorului pentru Impressum (§5 TMG) și Datenschutzerklärung.
+# Nu se inventează: cât timp lipsesc, paginile o spun explicit.
+OPERATOR = {
+    "name": os.getenv("OPERATOR_NAME", ""),
+    "legal_form": os.getenv("OPERATOR_LEGAL_FORM", ""),
+    "street": os.getenv("OPERATOR_STREET", ""),
+    "postal_code": os.getenv("OPERATOR_POSTAL_CODE", ""),
+    "city": os.getenv("OPERATOR_CITY", ""),
+    "email": os.getenv("OPERATOR_EMAIL", ""),
+    "phone": os.getenv("OPERATOR_PHONE", ""),
+    "represented_by": os.getenv("OPERATOR_REPRESENTED_BY", ""),
+    "register_court": os.getenv("OPERATOR_REGISTER_COURT", ""),
+    "register_number": os.getenv("OPERATOR_REGISTER_NUMBER", ""),
+    "vat_id": os.getenv("OPERATOR_VAT_ID", ""),
+    "supervisory_authority": os.getenv("OPERATOR_SUPERVISORY_AUTHORITY", ""),
+    "dpo_email": os.getenv("OPERATOR_DPO_EMAIL", ""),
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

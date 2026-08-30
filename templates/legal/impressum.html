@@ -1,0 +1,49 @@
+{% extends "legal/_base_legal.html" %}
+{% block title %}Impressum{% endblock %}
+{% block legal %}
+<h1>Impressum</h1>
+
+<h2>Angaben gemäß § 5 TMG</h2>
+<p>{{ operator.name|default:"—" }}{% if operator.legal_form %} {{ operator.legal_form }}{% endif %}<br>
+   {{ operator.street|default:"—" }}<br>
+   {{ operator.postal_code|default:"—" }} {{ operator.city|default:"" }}<br>
+   Deutschland</p>
+
+{% if operator.represented_by %}
+<h2>Vertreten durch</h2>
+<p>{{ operator.represented_by }}</p>
+{% endif %}
+
+<h2>Kontakt</h2>
+<p>Telefon: {{ operator.phone|default:"—" }}<br>
+   E-Mail: {{ operator.email|default:"—" }}</p>
+
+{% if operator.register_number %}
+<h2>Registereintrag</h2>
+<p>Registergericht: {{ operator.register_court }}<br>
+   Registernummer: {{ operator.register_number }}</p>
+{% endif %}
+
+{% if operator.vat_id %}
+<h2>Umsatzsteuer-Identifikationsnummer</h2>
+<p>Gemäß § 27 a Umsatzsteuergesetz: {{ operator.vat_id }}</p>
+{% endif %}
+
+<h2>Aufsichtsbehörde</h2>
+<p>{{ operator.supervisory_authority|default:"Zuständige Handwerkskammer / Gewerbeamt — noch einzutragen." }}</p>
+
+<h2>Berufsrechtliche Regelungen</h2>
+<p>Gebäudereinigerhandwerk, Anlage B1 der Handwerksordnung (zulassungsfrei).
+   Es gilt der allgemeinverbindliche Mindestlohntarifvertrag für das
+   Gebäudereinigerhandwerk (Rechtsverordnung nach § 7 AEntG).</p>
+
+<h2>Verbraucherstreitbeilegung</h2>
+<p>Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor
+   einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+
+<h2>Hinweis zur Plattform</h2>
+<p>Diese Plattform vermittelt Reinigungsleistungen zwischen Auftraggebern und
+   selbstständigen Betrieben bzw. Beschäftigten. Der Reinigungsvertrag kommt
+   ausschließlich zwischen Auftraggeber und Dienstleister zustande. Der
+   Plattformbetreiber wird nicht Vertragspartei der vermittelten Leistung.</p>
+{% endblock %}
