@@ -1,9 +1,10 @@
-<!doctype html>
+{% load static %}<!doctype html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Cleaning SaaS{% endblock %}</title>
+  <title>{% block title %}ProFM{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/profm.css' %}">
 </head>
 <body>
   {% if messages %}
@@ -11,6 +12,6 @@
     {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
   </ul>
   {% endif %}
-  <main>{% block content %}{% endblock %}</main>
+  <main class="public">{% block content %}{% endblock %}</main>
 </body>
 </html>

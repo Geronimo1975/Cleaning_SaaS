@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% block content %}
+{% extends "app.html" %}{% block content %}
 <h1>{{ contract.get_contract_type_display }}</h1>
 <p>{{ contract.worker.display_name }} @ {{ contract.employer.display_name }}<br>
    {{ contract.hours_per_month }} h/lună × {{ contract.hourly_wage }} € =

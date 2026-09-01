@@ -1,31 +1,40 @@
-{% extends "base.html" %}
-{% block title %}Dashboard · {{ account.display_name }}{% endblock %}
-{% block content %}
-<h1>{{ account.display_name }}</h1>
+{% extends "app.html" %}
+{% block title %}Prezentare{% endblock %}
+{% block crumb %}Prezentare{% endblock %}
 
-{% if other_accounts %}
-  <form method="post" action="{% url 'dashboard:home' %}">{% csrf_token %}
-    <label>Cont activ:
-      <select name="account" onchange="this.form.submit()">
-        <option value="{{ account.pk }}">{{ account.display_name }}</option>
-        {% for a in other_accounts %}<option value="{{ a.pk }}">{{ a.display_name }}</option>{% endfor %}
-      </select>
-    </label>
-  </form>
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ account.display_name }}</h1>
+    <p>{{ account.get_entity_type_display }}{% if account.locality %} · {{ account.locality.name }}{% endif %}</p>
+  </div>
+  <a class="btn" href="{% url 'accounts:profile_edit' %}">Editează profilul</a>
+</div>
+
+{% if metrics %}
+<div class="grid grid-stats" style="margin-bottom:var(--sp-5)">
+  {% for m in metrics %}
+  <div class="card stat">
+    <div class="stat-label">{{ m.label }}</div>
+    <div class="stat-value">{{ m.value }}</div>
+  </div>
+  {% endfor %}
+</div>
 {% endif %}
 
-<section>
-  {% for m in metrics %}<p><strong>{{ m.value }}</strong> {{ m.label }}</p>{% endfor %}
-</section>
-
-<section>
+<div class="grid grid-panels">
   {% for p in panels %}
-    <article>
+  <div class="card">
+    <div class="card-head">
       <h2>{% if p.url %}<a href="{{ p.url }}">{{ p.title }}</a>{% else %}{{ p.title }}{% endif %}</h2>
-      <p>{{ p.description }}</p>
-    </article>
+      {% if not p.url %}<span class="badge">în lucru</span>{% endif %}
+    </div>
+    <div class="card-body">
+      <p class="muted">{{ p.description }}</p>
+    </div>
+  </div>
   {% empty %}
-    <p>Contul nu are încă nicio capabilitate activă.</p>
+  <div class="card"><div class="empty">Contul nu are încă nicio capabilitate activă.</div></div>
   {% endfor %}
-</section>
+</div>
 {% endblock %}

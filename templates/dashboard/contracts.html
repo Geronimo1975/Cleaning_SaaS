@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% block content %}
+{% extends "app.html" %}{% block content %}
 <h1>Contracte</h1>
 <ul>{% for c in contracts %}
   <li><a href="{% url 'dashboard:contract_detail' c.pk %}">{{ c }}</a> —

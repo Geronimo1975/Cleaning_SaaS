@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% block content %}
+{% extends "app.html" %}{% block content %}
 <h1>Calibrarea estimărilor</h1>
 <p>Duratele planificate se compară cu pontajul. Propunerile se aplică manual —
    <code>minutes_per_visit</code> e intrarea planificatorului, iar planificatorul
@@ -32,12 +32,12 @@
 {% empty %}<p>Nicio propunere deschisă.</p>{% endfor %}
 
 <h2>Situația zonelor</h2>
-<table><tr><th>Zonă</th><th>Estimare</th><th>Ture pontate</th><th>Verdict</th></tr>
+<div class="card table-wrap"><table><tr><th>Zonă</th><th>Estimare</th><th>Ture pontate</th><th>Verdict</th></tr>
 {% for a in analyses %}
 <tr><td>{{ a.zone.site.name }} / {{ a.zone.name }}</td>
     <td>{{ a.current_minutes }} min</td><td>{{ a.sample_size }}</td>
     <td>{{ a.verdict }}</td></tr>
-{% endfor %}</table>
+{% endfor %}</table></div>
 
 {% if history %}
 <h2>Istoric</h2>

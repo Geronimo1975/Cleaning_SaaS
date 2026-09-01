@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% block content %}
+{% extends "app.html" %}{% block content %}
 <h1>{{ request_obj.title }}</h1>
 <p>{{ request_obj.category.name_de }} · {{ request_obj.locality.name }}
    {% if request_obj.postal_code %}({{ request_obj.postal_code }}){% endif %} ·

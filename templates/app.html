@@ -1,0 +1,68 @@
+{% load static %}<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>{% block title %}ProFM{% endblock %} · ProFM</title>
+  <link rel="stylesheet" href="{% static 'css/profm.css' %}">
+</head>
+<body>
+{% include "_icons.html" %}
+
+<div class="app">
+  <aside class="sidebar">
+    <a class="brand" href="{% url 'dashboard:home' %}">
+      <span class="brand-mark">PF</span> ProFM
+    </a>
+
+    <nav class="nav">
+      <span class="nav-label">Zona ta</span>
+      <a class="nav-item" href="{% url 'dashboard:home' %}"
+         {% if request.path == '/dashboard/' %}aria-current="page"{% endif %}>
+        <svg><use href="#i-home"></use></svg> Prezentare
+      </a>
+      {% for p in nav_panels %}
+        <a class="nav-item" href="{{ p.url }}"
+           {% if request.path == p.url %}aria-current="page"{% endif %}>
+          <svg><use href="#i-{{ p.icon|default:'file' }}"></use></svg> {{ p.title }}
+        </a>
+      {% endfor %}
+    </nav>
+
+    <div class="nav" style="margin-top:auto">
+      {% if user.is_staff %}
+        <a class="nav-item" href="/admin/"><svg><use href="#i-cpu"></use></svg> Consolă operator</a>
+      {% endif %}
+      <form method="post" action="{% url 'account_logout' %}">{% csrf_token %}
+        <button class="btn-ghost nav-item" style="width:100%">
+          <svg><use href="#i-logout"></use></svg> Ieși
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  <div>
+    <header class="topbar">
+      <span class="crumb"><strong>{% block crumb %}{% endblock %}</strong></span>
+      <span class="row">
+        {% if nav_account %}
+          <span class="badge">{{ nav_account.display_name }}</span>
+          {% for a in nav_other_accounts %}
+            <a class="btn btn-sm" href="{% url 'accounts:switch' a.pk %}">{{ a.display_name }}</a>
+          {% endfor %}
+        {% endif %}
+      </span>
+    </header>
+
+    {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+
+    <main class="content">{% block content %}{% endblock %}</main>
+  </div>
+</div>
+</body>
+</html>

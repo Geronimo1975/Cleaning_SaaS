@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% block content %}
+{% extends "app.html" %}{% block content %}
 <h1>Bursa de cereri</h1>
 {% if invitations %}
 <h2>Sugestii pentru tine</h2>
@@ -12,7 +12,7 @@
 <form method="get"><label><input type="checkbox" name="mine_only" value="1"
   {% if request.GET.mine_only %}checked{% endif %}> Doar serviciile și zonele mele</label>
   <button>Filtrează</button></form>
-<table><tr><th>Cerere</th><th>Serviciu</th><th>Localitate</th><th>Suprafață</th>
+<div class="card table-wrap"><table><tr><th>Cerere</th><th>Serviciu</th><th>Localitate</th><th>Suprafață</th>
   <th>Frecvență</th><th>Termen</th><th></th></tr>
 {% for r in requests %}
 <tr><td>{{ r.title }}</td><td>{{ r.category.name_de }}</td><td>{{ r.locality.name }}</td>
@@ -21,5 +21,5 @@
     <td><a href="{% url 'dashboard:offer' r.pk %}">
       {% if r.pk in my_offers %}Editează oferta{% else %}Ofertează{% endif %}</a></td></tr>
 {% empty %}<tr><td colspan="7">Nicio cerere deschisă.</td></tr>{% endfor %}
-</table>
+</table></div>
 {% endblock %}

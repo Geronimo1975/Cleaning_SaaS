@@ -1,36 +1,77 @@
-{% extends "base.html" %}{% block content %}
-<h1>Turele mele — săptămâna {{ week_start|date:"d.m.Y" }}</h1>
-<p><a href="?week={{ prev_week|date:'Y-m-d' }}">← anterioară</a> ·
-   <a href="?week={{ next_week|date:'Y-m-d' }}">următoare →</a></p>
-<p>Efectuat săptămâna aceasta: <strong>{{ done_minutes }} min</strong></p>
+{% extends "app.html" %}
+{% block title %}Turele mele{% endblock %}
+{% block crumb %}Turele mele{% endblock %}
 
+{% block content %}
+{# Pagina se folosește de pe telefon, în casa scării, cu o mână ocupată:
+   butoanele de pontaj sunt mari și singurele acțiuni primare din card. #}
+<div class="page-head">
+  <div>
+    <h1>Săptămâna {{ week_start|date:"d.m.Y" }}</h1>
+    <p>Efectuat: <strong>{{ done_minutes }} min</strong></p>
+  </div>
+  <span class="row">
+    <a class="btn btn-sm" href="?week={{ prev_week|date:'Y-m-d' }}">← anterioară</a>
+    <a class="btn btn-sm" href="?week={{ next_week|date:'Y-m-d' }}">următoare →</a>
+  </span>
+</div>
+
+<div class="stack">
 {% for s in shifts %}
-<article>
-  <h2>{{ s.date|date:"l, d.m" }} · {{ s.start_time|time:"H:i" }}</h2>
-  <p>{{ s.zone.site.name }} / {{ s.zone.name }} — {{ s.zone.site.locality.name }}<br>
-     Planificat: {{ s.duration_minutes }} min · Status: <strong>{{ s.get_status_display }}</strong>
-     {% if s.actual_minutes %} · Pontat: {{ s.actual_minutes }} min
-       {% if s.variance_minutes %}({{ s.variance_minutes }} min față de estimare){% endif %}
-     {% endif %}</p>
+  <article class="card">
+    <div class="card-head">
+      <div>
+        <h2>{{ s.date|date:"l, d.m" }} · {{ s.start_time|time:"H:i" }}</h2>
+        <small>{{ s.zone.site.name }} / {{ s.zone.name }} — {{ s.zone.site.locality.name }}</small>
+      </div>
+      <span class="badge{% if s.status == 'DONE' %} badge-ok{% elif s.status == 'IN_PROGRESS' %} badge-info{% elif s.status == 'DECLINED' %} badge-danger{% elif s.status == 'CONFIRMED' %} badge-ok{% endif %}">
+        {{ s.get_status_display }}
+      </span>
+    </div>
 
-  {% if s.status == 'PLANNED' %}
-    <form method="post">{% csrf_token %}<input type="hidden" name="shift" value="{{ s.pk }}">
-      <button name="action" value="confirm">Confirm</button>
-      <input name="reason" placeholder="Motiv (opțional)">
-      <button name="action" value="decline">Refuz</button></form>
-  {% endif %}
+    <div class="card-body">
+      <p class="muted">
+        Planificat {{ s.duration_minutes }} min{% if s.travel_minutes %} · deplasare {{ s.travel_minutes }} min{% endif %}
+        {% if s.actual_minutes %} · pontat <strong>{{ s.actual_minutes }} min</strong>
+          {% if s.variance_minutes %}({{ s.variance_minutes }} min față de estimare){% endif %}
+        {% endif %}
+        {% if s.tour %} · oprirea {{ s.position }} din runda „{{ s.tour.name }}"{% endif %}
+      </p>
 
-  {% if s.status == 'CONFIRMED' or s.status == 'PLANNED' %}
-    {% if s.date <= today %}
-      <form method="post">{% csrf_token %}<input type="hidden" name="shift" value="{{ s.pk }}">
-        <button name="action" value="check_in">Începe lucrul</button></form>
-    {% endif %}
-  {% elif s.status == 'IN_PROGRESS' %}
-    <p>Început la {{ s.checked_in_at|time:"H:i" }}</p>
-    <form method="post">{% csrf_token %}<input type="hidden" name="shift" value="{{ s.pk }}">
-      <input name="note" placeholder="Observații (opțional)">
-      <button name="action" value="check_out">Încheie lucrul</button></form>
-  {% endif %}
-</article>
-{% empty %}<p>Nicio tură publicată pentru această săptămână.</p>{% endfor %}
+      {% if s.status == 'PLANNED' %}
+        <form method="post" class="row">{% csrf_token %}
+          <input type="hidden" name="shift" value="{{ s.pk }}">
+          <button class="primary" name="action" value="confirm">Confirm</button>
+          <input name="reason" placeholder="Motiv (opțional)">
+          <button name="action" value="decline">Refuz</button>
+        </form>
+      {% endif %}
+
+      {% if s.status == 'CONFIRMED' or s.status == 'PLANNED' %}
+        {% if s.date <= today %}
+        <form method="post" style="margin-top:var(--sp-3)">{% csrf_token %}
+          <input type="hidden" name="shift" value="{{ s.pk }}">
+          <button class="primary" name="action" value="check_in"
+                  style="min-height:3rem;width:100%;max-width:22rem;font-size:0.95rem">
+            Începe lucrul
+          </button>
+        </form>
+        {% endif %}
+      {% elif s.status == 'IN_PROGRESS' %}
+        <p class="muted">Început la {{ s.checked_in_at|time:"H:i" }}</p>
+        <form method="post">{% csrf_token %}
+          <input type="hidden" name="shift" value="{{ s.pk }}">
+          <p><input name="note" placeholder="Observații (opțional)"></p>
+          <button class="primary" name="action" value="check_out"
+                  style="min-height:3rem;width:100%;max-width:22rem;font-size:0.95rem">
+            Încheie lucrul
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </article>
+{% empty %}
+  <div class="card"><div class="empty">Nicio tură publicată pentru această săptămână.</div></div>
+{% endfor %}
+</div>
 {% endblock %}

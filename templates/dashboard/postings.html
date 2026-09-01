@@ -1,7 +1,7 @@
-{% extends "base.html" %}{% block content %}
+{% extends "app.html" %}{% block content %}
 <h1>Anunțuri</h1>
 <p><a href="{% url 'dashboard:posting_create' %}">Anunț nou</a></p>
-<table>
+<div class="card table-wrap"><table>
 <tr><th>Titlu</th><th>Localitate</th><th>Status</th><th>Candidaturi</th><th></th></tr>
 {% for p in postings %}
 <tr>
@@ -13,5 +13,5 @@
       <button>{% if p.status == 'PUBLISHED' %}Închide{% else %}Publică{% endif %}</button></form></td>
 </tr>
 {% empty %}<tr><td colspan="5">Niciun anunț.</td></tr>{% endfor %}
-</table>
+</table></div>
 {% endblock %}

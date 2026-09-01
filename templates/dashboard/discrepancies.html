@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% block content %}
+{% extends "app.html" %}{% block content %}
 <h1>Verificare încrucișată</h1>
 <p>{{ start|date:"d.m.Y" }} – {{ end|date:"d.m.Y" }}</p>
 <p><small>Timpul de funcționare al unui aspirator nu este timpul de curățenie —
@@ -6,7 +6,7 @@
    întrebări de pus, nu concluzii.</small></p>
 
 {% if findings %}
-<table><tr><th>Lucrător</th><th>Data</th><th>Zonă</th><th>Pontat</th>
+<div class="card table-wrap"><table><tr><th>Lucrător</th><th>Data</th><th>Zonă</th><th>Pontat</th>
   <th>Echipament</th><th>Observație</th></tr>
 {% for f in findings %}
 <tr><td>{{ f.shift.worker.display_name|default:"—" }}</td>
@@ -14,7 +14,7 @@
     <td>{{ f.shift.zone.site.name }} / {{ f.shift.zone.name }}</td>
     <td>{{ f.reported_minutes }} min</td><td>{{ f.device_minutes }} min</td>
     <td>{{ f.message }}</td></tr>
-{% endfor %}</table>
+{% endfor %}</table></div>
 {% else %}
 <p>Nicio discrepanță în perioada selectată.</p>
 {% endif %}

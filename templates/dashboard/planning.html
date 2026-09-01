@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% block content %}
+{% extends "app.html" %}{% block content %}
 <h1>Planificare — săptămâna {{ week_start|date:"d.m.Y" }}</h1>
 <p><a href="?week={{ prev_week|date:'Y-m-d' }}">← anterioară</a> ·
    <a href="?week={{ next_week|date:'Y-m-d' }}">următoare →</a></p>
@@ -38,11 +38,11 @@
 
 {% if plan.unmet_demand %}
 <h2>Vizite nealocate ({{ plan.unmet_demand|length }})</h2>
-<table><tr><th>Zonă</th><th>Data</th><th>Durată</th><th>Motiv</th></tr>
+<div class="card table-wrap"><table><tr><th>Zonă</th><th>Data</th><th>Durată</th><th>Motiv</th></tr>
 {% for u in plan.unmet_demand %}
   <tr><td>{{ u.site }} / {{ u.zone }}</td><td>{{ u.date }}</td><td>{{ u.minutes }} min</td>
       <td>{% for name, reason in u.reasons.items %}{{ name }}: {{ reason }}<br>{% endfor %}</td></tr>
-{% endfor %}</table>
+{% endfor %}</table></div>
 {% endif %}
 {% endif %}
 {% endblock %}

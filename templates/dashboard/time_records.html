@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% block content %}
+{% extends "app.html" %}{% block content %}
 <h1>Pontaj — săptămâna {{ week_start|date:"d.m.Y" }}</h1>
 <p><a href="?week={{ prev_week|date:'Y-m-d' }}">← anterioară</a> ·
    <a href="?week={{ next_week|date:'Y-m-d' }}">următoare →</a></p>
@@ -6,7 +6,7 @@
    Păstrare până la {{ records.retention_until|date:"d.m.Y" }} (§16 ArbZG).</small></p>
 
 <h2>Înregistrări</h2>
-<table><tr><th>Lucrător</th><th>Data</th><th>Obiectiv</th><th>Planificat</th>
+<div class="card table-wrap"><table><tr><th>Lucrător</th><th>Data</th><th>Obiectiv</th><th>Planificat</th>
   <th>Efectiv</th><th>Diferență</th><th>Status</th></tr>
 {% for r in records.rows %}
   <tr><td>{{ r.worker }}</td><td>{{ r.date|date:"d.m" }}</td><td>{{ r.site }} / {{ r.zone }}</td>
@@ -14,11 +14,11 @@
       <td>{% if r.variance %}{{ r.variance }} min{% else %}—{% endif %}</td>
       <td>{{ r.status }}</td></tr>
 {% empty %}<tr><td colspan="7">Nicio tură încheiată.</td></tr>{% endfor %}
-</table>
+</table></div>
 
 {% if open_shifts %}
 <h2>Ture neîncheiate</h2>
-<table><tr><th>Lucrător</th><th>Data</th><th>Zonă</th><th>Status</th><th>Acțiune</th></tr>
+<div class="card table-wrap"><table><tr><th>Lucrător</th><th>Data</th><th>Zonă</th><th>Status</th><th>Acțiune</th></tr>
 {% for s in open_shifts %}
 <tr><td>{{ s.worker.display_name|default:"nealocat" }}</td><td>{{ s.date|date:"d.m" }}</td>
     <td>{{ s.zone.name }}</td><td>{{ s.get_status_display }}</td>
@@ -27,6 +27,6 @@
         <input name="reason" placeholder="Motivul corecției">
         <button name="action" value="correct">Corectează</button>
         <button name="action" value="missed">Neefectuat</button></form></td></tr>
-{% endfor %}</table>
+{% endfor %}</table></div>
 {% endif %}
 {% endblock %}

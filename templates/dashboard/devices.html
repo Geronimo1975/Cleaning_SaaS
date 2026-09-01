@@ -1,8 +1,8 @@
-{% extends "base.html" %}{% block content %}
+{% extends "app.html" %}{% block content %}
 <h1>Echipamente</h1>
 <p>Utilizare {{ start|date:"d.m.Y" }} – {{ end|date:"d.m.Y" }}</p>
 
-<table><tr><th>Echipament</th><th>Obiectiv</th><th>Sesiuni</th><th>Funcționare</th>
+<div class="card table-wrap"><table><tr><th>Echipament</th><th>Obiectiv</th><th>Sesiuni</th><th>Funcționare</th>
   <th>Suprafață</th><th>Erori</th><th>Online</th><th>Cheie</th></tr>
 {% for r in rows %}
 <tr><td>{{ r.device.label }}<br><small>{{ r.device.get_kind_display }}</small></td>
@@ -16,7 +16,7 @@
         <input type="hidden" name="device" value="{{ r.device.pk }}">
         <button name="action" value="reissue">Cheie nouă</button></form></td></tr>
 {% empty %}<tr><td colspan="8">Niciun echipament înregistrat.</td></tr>{% endfor %}
-</table>
+</table></div>
 
 <h2>Adaugă echipament</h2>
 <form method="post">{% csrf_token %}{{ form.as_p }}

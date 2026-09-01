@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% block content %}
+{% extends "app.html" %}{% block content %}
 <h1>{{ candidate.display_name }}</h1>
 <p>Candidatură la: {{ application.job.title }} · {{ application.created_at|date:"d.m.Y" }}</p>
 

@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% block content %}
+{% extends "app.html" %}{% block content %}
 <h1>{{ request_obj.title }}</h1>
 <p>{{ request_obj.category.name_de }} · {{ request_obj.locality.name }} ·
    {{ request_obj.area_sqm }} m² · {{ request_obj.get_frequency_display }} ·
@@ -25,9 +25,9 @@
   <p><strong>{{ s.offer.price_per_visit }} €/vizită</strong> ·
      {{ s.offer.estimated_minutes }} min · {{ s.offer.implied_hourly }} €/oră ·
      {{ s.offer.monthly_price }} €/lună · de la {{ s.offer.earliest_start|date:"d.m.Y" }}</p>
-  <table>{% for label, value, weight in s.explain %}
+  <div class="card table-wrap"><table>{% for label, value, weight in s.explain %}
     <tr><td>{{ label }}</td><td>{{ value }} / 100</td><td><small>{{ weight }}</small></td></tr>
-  {% endfor %}</table>
+  {% endfor %}</table></div>
   {% for note in s.notes %}<p><small>{{ note }}</small></p>{% endfor %}
   {% if s.warnings %}<ul>{% for w in s.warnings %}<li>{{ w }}</li>{% endfor %}</ul>{% endif %}
   {% if request_obj.is_open %}
