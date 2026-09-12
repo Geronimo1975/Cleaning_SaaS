@@ -111,6 +111,12 @@ class Order(models.Model):
             models.UniqueConstraint(
                 fields=("provider", "order_number"), name="uniq_order_number_per_provider"
             ),
+            # Idempotența la activare e garantată de bază, nu doar de verificarea din services.
+            models.UniqueConstraint(
+                fields=("source_offer",),
+                condition=models.Q(source_offer__isnull=False),
+                name="uniq_order_per_offer",
+            ),
         ]
         verbose_name = "Comandă"
         verbose_name_plural = "Comenzi"
