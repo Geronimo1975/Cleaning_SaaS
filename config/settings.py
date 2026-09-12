@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "apps.planning",
     "apps.devices",
     "apps.marketplace",
+    "apps.billing",
     "apps.cooperative",
     "apps.legal",
     "apps.dashboard",
