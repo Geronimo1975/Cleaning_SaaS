@@ -220,3 +220,31 @@ class TestTranzitii:
     def test_strainul_nu_schimba_starea(self, order, worker):
         with pytest.raises(BillingError):
             transition_order(order, OrderStatus.CANCELLED, actor=worker)
+
+
+from django.apps import apps as django_apps
+
+from apps.billing.backfill import backfill_orders
+
+
+@pytest.mark.django_db
+class TestBackfill:
+    def test_cererea_activa_fara_comanda_primeste_una(self, activated):
+        request, site, provider = activated
+        Order.objects.all().delete()          # simulează starea de dinaintea modulului
+        Customer.objects.all().delete()
+        assert backfill_orders(django_apps) == 1
+        order = Order.objects.get(source_offer=request.awarded_offer)
+        assert order.site == site
+        assert order.provider == provider
+        assert order.start_date == request.awarded_offer.earliest_start
+
+    def test_backfill_e_idempotent(self, activated):
+        assert backfill_orders(django_apps) == 0
+        assert Order.objects.count() == 1
+
+    def test_cererea_fara_obiectiv_e_sarita(self, activated):
+        request, site, provider = activated
+        Order.objects.all().delete()
+        site.delete()
+        assert backfill_orders(django_apps) == 0
