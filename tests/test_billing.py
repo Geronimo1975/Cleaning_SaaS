@@ -8,12 +8,23 @@ from datetime import date
 import pytest
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, connection
+from django.utils import timezone
 
 from apps.accounts.enums import Capability
 from apps.accounts.models import AccountCapability
 from apps.billing.enums import ContractKind, DocumentType, OrderStatus
 from apps.billing.models import Customer, Order
 from apps.billing.numbering import allocate
+from apps.billing.services import BillingError, create_order_from_request, transition_order
+from apps.contracts.models import DraftStatus
+from apps.contracts.services import render_contract
+from apps.marketplace.models import RequestStatus
+from apps.marketplace.services import (
+    activate_recurring_request,
+    award_offer,
+    create_contract_from_offer,
+    publish_request,
+)
 from apps.planning.models import Site
 
 
@@ -120,3 +131,76 @@ def test_concurenta_nu_lasa_goluri(employer):
     with ThreadPoolExecutor(max_workers=8) as pool:
         numbers = sorted(pool.map(lambda _: worker(), range(20)))
     assert numbers == [f"A-2026-{n:04d}" for n in range(1, 21)]
+
+
+@pytest.fixture
+def activated(db, service_request, make_provider, make_offer):
+    """Cerere publicată, ofertă câștigătoare, contract semnat, cerere activată."""
+    provider = make_provider("Nordclean")
+    publish_request(service_request, invite=False)
+    offer = make_offer(service_request, provider, price="90", minutes=180)
+    award_offer(service_request, offer, service_request.client)
+    service_request.refresh_from_db()
+    contract = create_contract_from_offer(service_request, service_request.client)
+    render_contract(contract)
+    contract.status = DraftStatus.SIGNED
+    contract.save(update_fields=["status"])
+    site = activate_recurring_request(service_request, service_request.client)
+    service_request.refresh_from_db()
+    return service_request, site, provider
+
+
+@pytest.mark.django_db
+class TestCreareDinCerere:
+    def test_activarea_creeaza_clientul_si_comanda(self, activated):
+        request, site, provider = activated
+        order = Order.objects.get(source_offer=request.awarded_offer)
+        assert order.provider == provider
+        assert order.customer.account == request.client
+        assert order.site == site
+        assert order.category == request.category
+        assert order.start_date == request.awarded_offer.earliest_start
+        assert order.order_number.startswith(f"A-{order.start_date.year}-")
+
+    def test_a_doua_chemare_e_idempotenta(self, activated):
+        request, site, provider = activated
+        first = Order.objects.get(source_offer=request.awarded_offer)
+        again = create_order_from_request(request, site, actor=request.client)
+        assert again.pk == first.pk
+        assert Order.objects.count() == 1
+        assert Customer.objects.count() == 1
+
+    def test_cererea_neactiva_e_refuzata(self, service_request, site):
+        with pytest.raises(BillingError):
+            create_order_from_request(service_request, site, actor=service_request.client)
+
+
+@pytest.mark.django_db
+class TestTranzitii:
+    def test_suspendare_si_reluare(self, order, employer):
+        transition_order(order, OrderStatus.SUSPENDED, actor=employer)
+        assert order.status == OrderStatus.SUSPENDED
+        transition_order(order, OrderStatus.ACTIVE, actor=employer)
+        assert order.status == OrderStatus.ACTIVE
+
+    def test_incheiata_e_terminala(self, order, employer):
+        transition_order(order, OrderStatus.COMPLETED, actor=employer)
+        with pytest.raises(BillingError):
+            transition_order(order, OrderStatus.ACTIVE, actor=employer)
+
+    def test_incheierea_unui_werkvertrag_marcheaza_receptia(self, order, employer):
+        order.contract_kind = ContractKind.WERKVERTRAG
+        order.save()
+        before = timezone.now()
+        transition_order(order, OrderStatus.COMPLETED, actor=employer)
+        order.refresh_from_db()
+        assert order.accepted_at is not None and order.accepted_at >= before
+
+    def test_dienstvertrag_nu_are_receptie(self, order, employer):
+        transition_order(order, OrderStatus.COMPLETED, actor=employer)
+        order.refresh_from_db()
+        assert order.accepted_at is None
+
+    def test_strainul_nu_schimba_starea(self, order, worker):
+        with pytest.raises(BillingError):
+            transition_order(order, OrderStatus.CANCELLED, actor=worker)
