@@ -283,6 +283,11 @@ def activate_recurring_request(request: ServiceRequest, actor):
 
     request.status = RequestStatus.ACTIVE
     request.save(update_fields=["status"])
+
+    # Stratul comercial: Customer + Order la prestator. Import local, ca la Site.
+    from apps.billing.services import create_order_from_request
+
+    create_order_from_request(request, site, actor=actor)
     return site
 
 
