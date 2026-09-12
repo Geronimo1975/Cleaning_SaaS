@@ -1,8 +1,9 @@
 from django.urls import path
 
+from apps.billing import views as billing_views
 from apps.contracts import views as contract_views
-from apps.jobs import dashboard_views as job_views
 from apps.devices import views as device_views
+from apps.jobs import dashboard_views as job_views
 from apps.marketplace import views as market_views
 from apps.planning import tours as tour_views
 from apps.planning import views as planning_views
@@ -51,4 +52,10 @@ urlpatterns = [
     path("cereri/<int:pk>/", market_views.request_detail_view, name="request_detail"),
     path("bursa/", market_views.OpenRequestsView.as_view(), name="open_requests"),
     path("bursa/<int:pk>/oferta/", market_views.offer_view, name="offer"),
+    # --- Comenzi (stratul comercial) --------------------------------
+    path("clienti/", billing_views.CustomerListView.as_view(), name="customers"),
+    path("comenzi/", billing_views.OrderListView.as_view(), name="orders"),
+    path("comenzi/<int:pk>/", billing_views.OrderDetailView.as_view(), name="order_detail"),
+    path("comenzi/<int:pk>/stare/", billing_views.order_transition_view,
+         name="order_transition"),
 ]

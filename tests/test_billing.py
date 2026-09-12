@@ -248,3 +248,29 @@ class TestBackfill:
         Order.objects.all().delete()
         site.delete()
         assert backfill_orders(django_apps) == 0
+
+
+@pytest.mark.django_db
+class TestDashboard:
+    def test_tranzitia_din_dashboard(self, client, employer, order):
+        client.force_login(employer.user)
+        response = client.post(f"/dashboard/comenzi/{order.pk}/stare/", {"status": "SUSPENDED"})
+        assert response.status_code == 302
+        order.refresh_from_db()
+        assert order.status == OrderStatus.SUSPENDED
+
+    def test_tranzitia_ilegala_afiseaza_eroare(self, client, employer, order):
+        client.force_login(employer.user)
+        transition_order(order, OrderStatus.COMPLETED, actor=employer)
+        response = client.post(f"/dashboard/comenzi/{order.pk}/stare/",
+                               {"status": "ACTIVE"}, follow=True)
+        assert response.status_code == 200
+        order.refresh_from_db()
+        assert order.status == OrderStatus.COMPLETED
+        assert "nu se poate trece" in response.content.decode()
+
+    def test_panourile_apar_la_prestator(self, client, employer):
+        client.force_login(employer.user)
+        html = client.get("/dashboard/").content.decode()
+        assert "/dashboard/comenzi/" in html
+        assert "/dashboard/clienti/" in html

@@ -1,0 +1,22 @@
+{% extends "app.html" %}{% block title %}Clienți{% endblock %}{% block crumb %}Clienți{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-head"><h1>Clienți</h1></div>
+  <div class="card-body table-wrap">
+    <table>
+      <tr><th>Client</th><th>Localitate</th><th>Nr. client</th><th>Contact</th><th class="num">Comenzi</th></tr>
+      {% for c in customers %}
+        <tr>
+          <td>{{ c.account.display_name }}</td>
+          <td>{{ c.account.locality.name }}</td>
+          <td>{{ c.customer_number|default:"—" }}</td>
+          <td>{{ c.contact_person|default:"—" }}</td>
+          <td class="num">{{ c.orders.count }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5">Niciun client. Clienții apar când o cerere din bursă e activată.</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock %}
