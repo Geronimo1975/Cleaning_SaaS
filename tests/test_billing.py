@@ -7,7 +7,7 @@ from datetime import date
 
 import pytest
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError, connection
+from django.db import IntegrityError, connection, transaction
 from django.utils import timezone
 
 from apps.accounts.enums import Capability
@@ -173,6 +173,22 @@ class TestCreareDinCerere:
     def test_cererea_neactiva_e_refuzata(self, service_request, site):
         with pytest.raises(BillingError):
             create_order_from_request(service_request, site, actor=service_request.client)
+
+    def test_doua_comenzi_pe_aceeasi_oferta_sunt_refuzate_de_baza(self, activated):
+        request, site, provider = activated
+        first = Order.objects.get(source_offer=request.awarded_offer)
+        with pytest.raises(IntegrityError):
+            with transaction.atomic():
+                Order.objects.create(
+                    provider=first.provider,
+                    customer=first.customer,
+                    site=first.site,
+                    category=first.category,
+                    order_number="A-2026-9999",
+                    title=first.title,
+                    start_date=first.start_date,
+                    source_offer=first.source_offer,
+                )
 
 
 @pytest.mark.django_db
