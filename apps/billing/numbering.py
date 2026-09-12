@@ -11,10 +11,7 @@ from .models import DocumentSequence
 
 @transaction.atomic
 def allocate(provider, document_type: str, year: int) -> str:
-    DocumentSequence.objects.get_or_create(
-        provider=provider, document_type=document_type, year=year
-    )
-    seq = DocumentSequence.objects.select_for_update().get(
+    seq, _ = DocumentSequence.objects.select_for_update().get_or_create(
         provider=provider, document_type=document_type, year=year
     )
     number = f"{seq.prefix}-{year}-{seq.next_number:04d}"
