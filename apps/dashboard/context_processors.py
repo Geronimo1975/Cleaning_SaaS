@@ -6,6 +6,8 @@ dashboard nu știa ce meniu să arate. Aici devin context global — aceeași su
 unică (`panels.py`), filtrată pe capabilitățile contului activ.
 """
 
+from django.conf import settings
+
 from .panels import panels_for
 
 
@@ -36,6 +38,4 @@ def navigation(request):
 def marketing(request):
     """Link-ul spre site-ul WordPress. Separat de `navigation`, care iese
     devreme fără cont activ — dar link-ul e necesar și pe paginile publice."""
-    from django.conf import settings
-
     return {"marketing_site_url": settings.MARKETING_SITE_URL}

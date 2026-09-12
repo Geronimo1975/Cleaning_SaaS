@@ -4,6 +4,11 @@
 # partajează nimic cu Django: nici baza, nici volumele, nici rețeaua internă.
 # Se pornește cu `docker compose -f docker-compose.wp.yml up -d`.
 
+# Ambele fișiere compose stau în /opt/cleaning; fără un nume de proiect
+# distinct, ambele ar fi proiectul „cleaning" și `--remove-orphans` pe unul
+# ar șterge containerele celuilalt stack.
+name: cleaning-wp
+
 services:
   wpdb:
     image: mariadb:11

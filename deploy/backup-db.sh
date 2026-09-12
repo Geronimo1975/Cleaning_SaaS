@@ -40,11 +40,12 @@ if docker compose -f docker-compose.wp.yml ps --status running wpdb 2>/dev/null 
     WP_DB_USER=$(env_value WP_DB_USER)
     WP_DB_PASSWORD=$(env_value WP_DB_PASSWORD)
     WP_DB_NAME=$(env_value WP_DB_NAME)
-    docker compose -f docker-compose.wp.yml exec -T wpdb \
-        mariadb-dump -u "$WP_DB_USER" -p"$WP_DB_PASSWORD" "$WP_DB_NAME" \
+    # Parola prin variabilă de mediu, nu în argv — altfel apare în `ps`.
+    docker compose -f docker-compose.wp.yml exec -T -e MYSQL_PWD="$WP_DB_PASSWORD" wpdb \
+        mariadb-dump -u "$WP_DB_USER" "$WP_DB_NAME" \
         | gzip > "$BACKUP_DIR/wp_db_$TIMESTAMP.sql.gz"
     docker run --rm \
-        -v cleaning_wp_data:/data:ro \
+        -v cleaning-wp_wp_data:/data:ro \
         -v "$BACKUP_DIR":/backup \
         alpine tar czf "/backup/wp_files_$TIMESTAMP.tar.gz" -C /data .
 fi

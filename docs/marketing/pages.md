@@ -25,7 +25,7 @@ CTA: Jetzt starten
 **Drei Säulen** (3 coloane)
 - Für Betriebe — Aufträge finden, Wochenpläne erstellen, Stunden im Rahmen
   der Verträge halten.
-- Für Reinigungskräfte — Stellen in Ihrer Nähe, klare Schichten, Pontaj per
+- Für Reinigungskräfte — Stellen in Ihrer Nähe, klare Schichten, Zeiterfassung per
   Klick.
 - Für Auftraggeber — Reinigungsbedarf ausschreiben, Angebote vergleichen,
   geprüfte Betriebe beauftragen.
