@@ -1,0 +1,73 @@
+# Site-ul de marketing (WordPress) — stack separat de aplicație.
+#
+# Aceeași mașină, același Traefik, altă gazdă (`WP_HOST`, adică www.). Nu
+# partajează nimic cu Django: nici baza, nici volumele, nici rețeaua internă.
+# Se pornește cu `docker compose -f docker-compose.wp.yml up -d`.
+
+services:
+  wpdb:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${WP_DB_NAME}
+      MARIADB_USER: ${WP_DB_USER}
+      MARIADB_PASSWORD: ${WP_DB_PASSWORD}
+      MARIADB_RANDOM_ROOT_PASSWORD: "1"
+    volumes:
+      - wp_db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - wp_internal
+
+  wp:
+    image: wordpress:6-php8.3-apache
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: wpdb
+      WORDPRESS_DB_NAME: ${WP_DB_NAME}
+      WORDPRESS_DB_USER: ${WP_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WP_DB_PASSWORD}
+      # În spatele Traefik, WP vede HTTP; fără asta generează link-uri http://
+      # și intră în buclă de redirect.
+      WORDPRESS_CONFIG_EXTRA: |
+        if (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && $$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') { $$_SERVER['HTTPS'] = 'on'; }
+    volumes:
+      - wp_data:/var/www/html
+      - ./deploy/wp-uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
+    depends_on:
+      wpdb:
+        condition: service_healthy
+    networks:
+      - wp_internal
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: gethub_gethub-network
+
+      traefik.http.routers.wp-http.rule: Host(`${WP_HOST}`)
+      traefik.http.routers.wp-http.entrypoints: web
+      traefik.http.routers.wp-http.middlewares: wp-https-redirect
+
+      traefik.http.middlewares.wp-https-redirect.redirectscheme.scheme: https
+      traefik.http.middlewares.wp-https-redirect.redirectscheme.permanent: "true"
+
+      traefik.http.routers.wp.rule: Host(`${WP_HOST}`)
+      traefik.http.routers.wp.entrypoints: websecure
+      traefik.http.routers.wp.tls: "true"
+      traefik.http.routers.wp.tls.certresolver: letsencrypt
+
+      traefik.http.services.wp.loadbalancer.server.port: "80"
+
+networks:
+  wp_internal:
+  traefik:
+    external: true
+    name: gethub_gethub-network
+
+volumes:
+  wp_data:
+  wp_db:
