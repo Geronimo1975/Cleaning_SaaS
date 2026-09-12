@@ -1,6 +1,7 @@
 """Comenzi și clienți, văzute de prestator. Scoping strict pe `provider`."""
 
 from django.contrib import messages
+from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView
@@ -27,7 +28,11 @@ class CustomerListView(CapabilityRequiredMixin, OwnedByAccountMixin, ListView):
     context_object_name = "customers"
 
     def get_queryset(self):
-        return super().get_queryset().select_related("account__locality")
+        return (
+            super().get_queryset()
+            .select_related("account__locality")
+            .annotate(orders_count=Count("orders"))
+        )
 
 
 class OrderListView(CapabilityRequiredMixin, OwnedByAccountMixin, ListView):

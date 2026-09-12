@@ -11,7 +11,7 @@
           <td>{{ c.account.locality.name }}</td>
           <td>{{ c.customer_number|default:"—" }}</td>
           <td>{{ c.contact_person|default:"—" }}</td>
-          <td class="num">{{ c.orders.count }}</td>
+          <td class="num">{{ c.orders_count }}</td>
         </tr>
       {% empty %}
         <tr><td colspan="5">Niciun client. Clienții apar când o cerere din bursă e activată.</td></tr>

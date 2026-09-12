@@ -11,8 +11,9 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError, connection, transaction
 from django.utils import timezone
 
-from apps.accounts.enums import Capability
-from apps.accounts.models import AccountCapability
+from apps.accounts.enums import Capability, EntityType
+from apps.accounts.models import AccountCapability, User
+from apps.accounts.services import create_account
 from apps.billing.backfill import backfill_orders
 from apps.billing.enums import ContractKind, DocumentType, OrderStatus
 from apps.billing.models import Customer, Order
@@ -270,3 +271,31 @@ class TestDashboard:
         html = client.get("/dashboard/").content.decode()
         assert "/dashboard/comenzi/" in html
         assert "/dashboard/clienti/" in html
+
+    def test_lista_clientilor_nu_face_o_interogare_per_client(
+        self, client, employer, order, worker, client_account, norderstedt
+    ):
+        from django.test.utils import CaptureQueriesContext
+
+        client.force_login(employer.user)
+        client.get("/dashboard/clienti/")  # încălzire: sesiune, content-type etc.
+
+        # `order` a creat deja primul `Customer` (pe `client_account`).
+        with CaptureQueriesContext(connection) as ctx:
+            client.get("/dashboard/clienti/")
+        few = len(ctx)
+
+        Customer.objects.create(provider=employer, account=worker)
+        for i in range(2):
+            other = create_account(
+                user=User.objects.create_user(f"client{i}@example.de", "parola-lunga-123"),
+                entity_type=EntityType.INDIVIDUAL, display_name=f"Client {i}",
+                capabilities=[Capability.CLIENT], locality=norderstedt,
+            )
+            Customer.objects.create(provider=employer, account=other)
+
+        with CaptureQueriesContext(connection) as ctx:
+            client.get("/dashboard/clienti/")
+        many = len(ctx)
+
+        assert few == many, f"N+1: {few} interogări la 1 client, {many} la 4"
