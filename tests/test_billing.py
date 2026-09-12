@@ -6,19 +6,20 @@ comercial al unui Auftrag. Fără facturi aici.
 from datetime import date
 
 import pytest
+from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, connection, transaction
 from django.utils import timezone
 
 from apps.accounts.enums import Capability
 from apps.accounts.models import AccountCapability
+from apps.billing.backfill import backfill_orders
 from apps.billing.enums import ContractKind, DocumentType, OrderStatus
 from apps.billing.models import Customer, Order
 from apps.billing.numbering import allocate
 from apps.billing.services import BillingError, create_order_from_request, transition_order
 from apps.contracts.models import DraftStatus
 from apps.contracts.services import render_contract
-from apps.marketplace.models import RequestStatus
 from apps.marketplace.services import (
     activate_recurring_request,
     award_offer,
@@ -222,11 +223,6 @@ class TestTranzitii:
             transition_order(order, OrderStatus.CANCELLED, actor=worker)
 
 
-from django.apps import apps as django_apps
-
-from apps.billing.backfill import backfill_orders
-
-
 @pytest.mark.django_db
 class TestBackfill:
     def test_cererea_activa_fara_comanda_primeste_una(self, activated):
@@ -269,7 +265,7 @@ class TestDashboard:
         assert order.status == OrderStatus.COMPLETED
         assert "nu se poate trece" in response.content.decode()
 
-    def test_panourile_apar_la_prestator(self, client, employer):
+    def test_panourile_apar_la_prestator(self, client, employer, order):
         client.force_login(employer.user)
         html = client.get("/dashboard/").content.decode()
         assert "/dashboard/comenzi/" in html

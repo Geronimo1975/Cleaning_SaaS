@@ -6,7 +6,7 @@ panourilor, nu un al cincilea dashboard scris de mână. Adăugarea unei capabil
 noi înseamnă un rând aici, nu un `if` într-un template.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from apps.accounts.enums import Capability
 
@@ -73,12 +73,6 @@ PANELS: list[Panel] = [
           "dashboard:customers", Capability.WORKER, order=50, icon="users"),
     Panel("service_orders_w", "Comenzi", "Aufträge în execuție, suspendate, încheiate",
           "dashboard:orders", Capability.WORKER, order=52, icon="file"),
-    # Dedupe pe URL în context_processors.navigation: un cont EMPLOYER (fără
-    # PROVIDER) trebuie să vadă totuși comenzile pe care le execută.
-    Panel("customers_emp", "Clienți", "Beneficiarii pentru care execuți comenzi",
-          "dashboard:customers", Capability.EMPLOYER, order=50, icon="users"),
-    Panel("service_orders_emp", "Comenzi", "Aufträge în execuție, suspendate, încheiate",
-          "dashboard:orders", Capability.EMPLOYER, order=52, icon="file"),
     Panel("sites", "Obiective și zone", "Ce se curăță, cât durează, cât de des",
           "dashboard:sites", Capability.EMPLOYER, order=30, icon="building"),
     Panel("tours", "Runde", "Un lucrător, mai multe obiective, în ordine",
