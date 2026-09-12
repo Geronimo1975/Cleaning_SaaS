@@ -36,6 +36,32 @@ rsync -az --delete \
   ./ macbook-air:/opt/cleaning/
 ```
 
+## Site-ul de marketing (WordPress, `www.`)
+
+Stack separat, `docker-compose.wp.yml`, pe același Traefik. Aplicația Django
+stă pe `app.DOMENIU`, WordPress pe `www.DOMENIU`; se leagă doar prin
+linkuri (`MARKETING_SITE_URL` în `.env`, CTA-urile din WP spre
+`https://app.DOMENIU/accounts/signup/`).
+
+DNS: două A records, `www` și `app`, ambele → `85.215.69.83`.
+
+```bash
+cd /opt/cleaning
+# .env: WP_HOST, WP_DB_NAME, WP_DB_USER, WP_DB_PASSWORD, MARKETING_SITE_URL
+docker compose -f docker-compose.wp.yml up -d
+```
+
+Apoi în browser, la `https://www.DOMENIU`: instalarea WP (limbă, admin),
+`Design → Themes → Upload` cu `wilmer.zip` din arhiva ThemeForest, iar tema
+cere la activare plugin-urile `wilmer-core`, `js_composer`, `revslider`
+(sunt în `wilmer/includes/plugins/` din aceeași arhivă). Limita de upload e
+ridicată la 64 MB prin `deploy/wp-uploads.ini`.
+
+Paginile și textele: `docs/marketing/pages.md`. Zip-ul temei nu e în git —
+licența e personală.
+
+Backup-ul din `deploy/backup-db.sh` include WP automat când `wpdb` rulează.
+
 ---
 
 ## Varianta cu Nginx propriu (server gol)
