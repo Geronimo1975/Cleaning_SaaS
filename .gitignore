@@ -9,3 +9,6 @@ staticfiles/
 .pytest_cache/
 .DS_Store
 scratchpad/
+
+# Tema ThemeForest — licență personală, se urcă manual în WP.
+themeforest-*.zip
