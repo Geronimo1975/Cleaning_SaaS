@@ -7,6 +7,11 @@
   <link rel="stylesheet" href="{% static 'css/profm.css' %}">
 </head>
 <body>
+  <header class="public-top">
+    <a class="brand" href="{% if marketing_site_url %}{{ marketing_site_url }}{% else %}/jobs/{% endif %}">
+      <span class="brand-mark">PF</span> ProFM
+    </a>
+  </header>
   {% if messages %}
   <ul class="messages">
     {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}

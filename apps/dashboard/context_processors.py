@@ -31,3 +31,11 @@ def navigation(request):
         "nav_account": account,
         "nav_other_accounts": request.user.accounts.exclude(pk=account.pk),
     }
+
+
+def marketing(request):
+    """Link-ul spre site-ul WordPress. Separat de `navigation`, care iese
+    devreme fără cont activ — dar link-ul e necesar și pe paginile publice."""
+    from django.conf import settings
+
+    return {"marketing_site_url": settings.MARKETING_SITE_URL}

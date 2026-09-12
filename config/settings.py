@@ -16,6 +16,10 @@ if DEBUG:
     # listă implicită de producție.
     ALLOWED_HOSTS.append("testserver")
 
+# Site-ul de marketing (WordPress, pe www.). Gol = nu există încă; logo-ul
+# paginilor publice duce atunci la /jobs/, pentru că nu avem rută `/`.
+MARKETING_SITE_URL = os.getenv("MARKETING_SITE_URL", "").rstrip("/")
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -74,6 +78,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "apps.dashboard.context_processors.navigation",
+                "apps.dashboard.context_processors.marketing",
             ],
         },
     },

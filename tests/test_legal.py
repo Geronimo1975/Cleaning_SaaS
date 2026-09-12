@@ -101,3 +101,18 @@ class TestPublicationGate:
         settings.OPERATOR = OPERATOR_COMPLET
         report = flush()
         assert "operator nedeclarat" not in str(report.get("skipped", ""))
+
+
+@pytest.mark.django_db
+class TestMarketingLink:
+    """Logo-ul paginilor publice duce la site-ul de marketing când e configurat."""
+
+    def test_fara_setare_logo_duce_la_jobs(self, client, settings):
+        settings.MARKETING_SITE_URL = ""
+        response = client.get("/impressum/")
+        assert b'class="brand" href="/jobs/"' in response.content
+
+    def test_cu_setare_logo_duce_la_site(self, client, settings):
+        settings.MARKETING_SITE_URL = "https://www.example.de"
+        response = client.get("/impressum/")
+        assert b'class="brand" href="https://www.example.de"' in response.content
