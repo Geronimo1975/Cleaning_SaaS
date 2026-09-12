@@ -1,6 +1,7 @@
 """
-Comenzi, clienți, serii de numerotare. Operatorul corectează un prefix greșit
-pe o serie; tot restul (starea comenzii, clienții) se face din dashboard.
+Comenzi, clienți, serii de numerotare. Operatorul poate corecta un `prefix`
+greșit pe o serie de numerotare — niciodată o stare de comandă și niciodată
+un contor (`next_number`), pentru că ar redeschide un gol în numerotare.
 """
 
 from django.contrib import admin
@@ -24,7 +25,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ("status", "contract_kind")
     search_fields = ("order_number", "title", "provider__display_name")
     autocomplete_fields = ("provider", "customer", "site", "category")
-    readonly_fields = ("order_number", "source_offer", "created_at")
+    readonly_fields = ("order_number", "source_offer", "created_at", "status", "accepted_at")
     list_select_related = ("provider", "customer__account", "site")
     date_hierarchy = "start_date"
 
@@ -35,3 +36,4 @@ class DocumentSequenceAdmin(admin.ModelAdmin):
     list_filter = ("document_type", "year")
     autocomplete_fields = ("provider",)
     list_select_related = ("provider",)
+    readonly_fields = ("next_number",)

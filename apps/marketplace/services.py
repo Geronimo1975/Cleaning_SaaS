@@ -285,9 +285,16 @@ def activate_recurring_request(request: ServiceRequest, actor):
     request.save(update_fields=["status"])
 
     # Stratul comercial: Customer + Order la prestator. Import local, ca la Site.
-    from apps.billing.services import create_order_from_request
+    from django.core.exceptions import ValidationError
 
-    create_order_from_request(request, site, actor=actor)
+    from apps.billing.services import BillingError, create_order_from_request
+
+    try:
+        create_order_from_request(request, site, actor=actor)
+    except (BillingError, ValidationError) as exc:
+        # Excepția stratului comercial devine o excepție a seam-ului: apelantul
+        # din marketplace prinde doar MarketplaceError.
+        raise MarketplaceError(str(exc)) from exc
     return site
 
 

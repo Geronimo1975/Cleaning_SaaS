@@ -14,10 +14,16 @@ from apps.accounts.permissions import (
     require_manage,
 )
 
+from .enums import OrderStatus
 from .models import Customer, Order
 from .services import ALLOWED_TRANSITIONS, BillingError, transition_order
 
 PROVIDER_SIDE = (Capability.PROVIDER, Capability.WORKER)
+
+# Ordinea de afișare a butoanelor de tranziție, nu ordinea alfabetică a stărilor.
+TRANSITION_ORDER = (
+    OrderStatus.ACTIVE, OrderStatus.SUSPENDED, OrderStatus.COMPLETED, OrderStatus.CANCELLED,
+)
 
 
 class CustomerListView(CapabilityRequiredMixin, OwnedByAccountMixin, ListView):
@@ -63,10 +69,13 @@ class OrderDetailView(AccountRequiredMixin, OwnedByAccountMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        labels = dict(Order._meta.get_field("status").choices)
-        ctx["next_statuses"] = [
-            (value, labels[value]) for value in sorted(ALLOWED_TRANSITIONS[self.object.status])
-        ]
+        ctx["next_statuses"] = []
+        if self.request.membership and self.request.membership.can_manage:
+            labels = dict(Order._meta.get_field("status").choices)
+            allowed = ALLOWED_TRANSITIONS[self.object.status]
+            ctx["next_statuses"] = [
+                (value, labels[value]) for value in TRANSITION_ORDER if value in allowed
+            ]
         return ctx
 
 

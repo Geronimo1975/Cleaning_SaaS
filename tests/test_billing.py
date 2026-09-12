@@ -22,6 +22,7 @@ from apps.billing.services import BillingError, create_order_from_request, trans
 from apps.contracts.models import DraftStatus
 from apps.contracts.services import render_contract
 from apps.marketplace.services import (
+    MarketplaceError,
     activate_recurring_request,
     award_offer,
     create_contract_from_offer,
@@ -136,8 +137,8 @@ def test_concurenta_nu_lasa_goluri(employer):
 
 
 @pytest.fixture
-def activated(db, service_request, make_provider, make_offer):
-    """Cerere publicată, ofertă câștigătoare, contract semnat, cerere activată."""
+def ready_to_activate(db, service_request, make_provider, make_offer):
+    """Cerere publicată, ofertă câștigătoare, contract semnat — gata de activare."""
     provider = make_provider("Nordclean")
     publish_request(service_request, invite=False)
     offer = make_offer(service_request, provider, price="90", minutes=180)
@@ -147,6 +148,13 @@ def activated(db, service_request, make_provider, make_offer):
     render_contract(contract)
     contract.status = DraftStatus.SIGNED
     contract.save(update_fields=["status"])
+    return service_request, provider
+
+
+@pytest.fixture
+def activated(db, ready_to_activate):
+    """Cerere publicată, ofertă câștigătoare, contract semnat, cerere activată."""
+    service_request, provider = ready_to_activate
     site = activate_recurring_request(service_request, service_request.client)
     service_request.refresh_from_db()
     return service_request, site, provider
@@ -175,6 +183,21 @@ class TestCreareDinCerere:
     def test_cererea_neactiva_e_refuzata(self, service_request, site):
         with pytest.raises(BillingError):
             create_order_from_request(service_request, site, actor=service_request.client)
+
+    def test_eroarea_stratului_comercial_devine_marketplace_error(
+        self, ready_to_activate, monkeypatch
+    ):
+        """Seam-ul traduce excepția: view-ul din marketplace prinde doar MarketplaceError."""
+        import apps.billing.services as billing_services
+
+        service_request, provider = ready_to_activate
+
+        def _explodeaza(request, site, *, actor):
+            raise billing_services.BillingError("x")
+
+        monkeypatch.setattr(billing_services, "create_order_from_request", _explodeaza)
+        with pytest.raises(MarketplaceError):
+            activate_recurring_request(service_request, service_request.client)
 
     def test_doua_comenzi_pe_aceeasi_oferta_sunt_refuzate_de_baza(self, activated):
         request, site, provider = activated
@@ -222,6 +245,12 @@ class TestTranzitii:
     def test_strainul_nu_schimba_starea(self, order, worker):
         with pytest.raises(BillingError):
             transition_order(order, OrderStatus.CANCELLED, actor=worker)
+
+    def test_tranzitia_concurenta_e_detectata(self, order, employer):
+        """Rândul a fost schimbat de altcineva între citire și scriere: BillingError."""
+        Order.objects.filter(pk=order.pk).update(status=OrderStatus.CANCELLED)
+        with pytest.raises(BillingError):
+            transition_order(order, OrderStatus.SUSPENDED, actor=employer)
 
 
 @pytest.mark.django_db
@@ -271,6 +300,17 @@ class TestDashboard:
         html = client.get("/dashboard/").content.decode()
         assert "/dashboard/comenzi/" in html
         assert "/dashboard/clienti/" in html
+
+    def test_membrul_simplu_nu_vede_butoane_de_tranzitie(self, client, employer, order):
+        from apps.accounts.enums import MembershipRole
+        from apps.accounts.models import Membership, User
+
+        member = User.objects.create_user("membru2@example.de", "parola-lunga-123")
+        Membership.objects.create(user=member, account=employer, role=MembershipRole.MEMBER)
+        client.force_login(member)
+        response = client.get(f"/dashboard/comenzi/{order.pk}/")
+        assert response.status_code == 200
+        assert 'name="status"' not in response.content.decode()
 
     def test_lista_clientilor_nu_face_o_interogare_per_client(
         self, client, employer, order, worker, client_account, norderstedt

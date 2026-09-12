@@ -62,14 +62,19 @@ def transition_order(order: Order, new_status: str, *, actor) -> Order:
         raise BillingError(
             f"Din „{order.get_status_display()}” nu se poate trece la „{new_status}”."
         )
-    fields = ["status"]
-    order.status = new_status
+    changes = {"status": new_status}
     if (
         new_status == OrderStatus.COMPLETED
         and order.contract_kind == ContractKind.WERKVERTRAG
         and order.accepted_at is None
     ):
-        order.accepted_at = timezone.now()   # Abnahme, §641 BGB
-        fields.append("accepted_at")
-    order.save(update_fields=fields)
+        changes["accepted_at"] = timezone.now()   # Abnahme, §641 BGB
+
+    # Update condiționat de starea citită: dacă rândul s-a schimbat între timp,
+    # 0 rânduri actualizate — nu suprascriem o tranziție concurentă „oarbă”.
+    updated = Order.objects.filter(pk=order.pk, status=order.status).update(**changes)
+    if not updated:
+        raise BillingError("Comanda a fost modificată între timp. Reîncarcă pagina.")
+    for field, value in changes.items():
+        setattr(order, field, value)
     return order
