@@ -33,7 +33,24 @@ docker run --rm \
     -v "$BACKUP_DIR":/backup \
     alpine tar czf "/backup/private_$TIMESTAMP.tar.gz" -C /data .
 
+# WordPress — doar dacă stack-ul rulează pe această mașină. Site-ul de
+# marketing nu are date legale, dar are conținut pe care nimeni nu-l rescrie
+# de plăcere.
+if docker compose -f docker-compose.wp.yml ps --status running wpdb 2>/dev/null | grep -q wpdb; then
+    WP_DB_USER=$(env_value WP_DB_USER)
+    WP_DB_PASSWORD=$(env_value WP_DB_PASSWORD)
+    WP_DB_NAME=$(env_value WP_DB_NAME)
+    docker compose -f docker-compose.wp.yml exec -T wpdb \
+        mariadb-dump -u "$WP_DB_USER" -p"$WP_DB_PASSWORD" "$WP_DB_NAME" \
+        | gzip > "$BACKUP_DIR/wp_db_$TIMESTAMP.sql.gz"
+    docker run --rm \
+        -v cleaning_wp_data:/data:ro \
+        -v "$BACKUP_DIR":/backup \
+        alpine tar czf "/backup/wp_files_$TIMESTAMP.tar.gz" -C /data .
+fi
+
 find "$BACKUP_DIR" -name 'db_*.dump' -mtime +"$KEEP_DAYS" -delete
 find "$BACKUP_DIR" -name 'private_*.tar.gz' -mtime +"$KEEP_DAYS" -delete
+find "$BACKUP_DIR" -name 'wp_*' -mtime +"$KEEP_DAYS" -delete
 
 echo "Backup complet: db_$TIMESTAMP.dump + private_$TIMESTAMP.tar.gz"
