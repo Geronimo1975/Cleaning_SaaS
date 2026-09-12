@@ -61,7 +61,7 @@ gemeinsam festlegen — kein Betrieb wird bevorzugt.
 berücksichtigt Vertragsstunden, Höchstarbeitszeit, Ruhezeiten und Sonntage.
 Was nicht passt, bleibt sichtbar offen statt still überbucht.
 
-**Zeiterfassung** — Check-in und Check-out pro Schicht, Korrektionen nur als
+**Zeiterfassung** — Check-in und Check-out pro Schicht, Korrekturen nur als
 neuer Eintrag. Export als Reinigungsplan (XLSX) für den Auftraggeber.
 
 **Verträge** — Aus dem gewonnenen Angebot entsteht der Vertragsentwurf mit
