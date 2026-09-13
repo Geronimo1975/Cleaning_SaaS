@@ -1,32 +1,13 @@
-{% load static %}{# Hero public. Parametri: kicker, title, lead, cta_url, cta_label, alt_url, alt_label, compact (fără video, mai scund) #}
-<section class="hero{% if compact %} hero-compact{% endif %}" aria-labelledby="hero-title">
-  {% if compact %}
-  <img class="hero-media" src="{% static 'img/hero.webp' %}" alt="" width="1344" height="752">
-  {% else %}
-  <video class="hero-media" autoplay muted loop playsinline preload="metadata"
-         poster="{% static 'img/hero.webp' %}" aria-hidden="true">
-    <source src="{% static 'video/hero.mp4' %}" type="video/mp4">
-  </video>
-  {% endif %}
+{% load static %}{# Hero public, stil pland: text stânga, imagine dreapta. Parametri: kicker, title, lead, cta_url, cta_label, alt_url, alt_label #}
+<section class="hero" aria-labelledby="hero-title">
   <div class="hero-body">
-    <span class="hero-kicker">{{ kicker }}</span>
+    <span class="eyebrow">{{ kicker }}</span>
     <h1 id="hero-title">{{ title }}</h1>
     <p>{{ lead }}</p>
     <div class="hero-actions">
-      <a class="btn btn-glow" href="{{ cta_url }}" data-magnetic>{{ cta_label }}</a>
-      {% if alt_url %}<a class="btn btn-outline" href="{{ alt_url }}">{{ alt_label }}</a>{% endif %}
+      <a class="btn btn-primary" href="{{ cta_url }}">{{ cta_label }}</a>
+      {% if alt_url %}<a class="btn" href="{{ alt_url }}">{{ alt_label }}</a>{% endif %}
     </div>
   </div>
+  <img class="hero-media" src="{% static 'img/hero.webp' %}" alt="" width="1344" height="752" loading="eager">
 </section>
-<script>
-// Buton „magnetic”: urmărește cursorul pe o rază mică. Doar pointer fin, doar fără reduced-motion.
-if (matchMedia('(pointer:fine) and (prefers-reduced-motion:no-preference)').matches) {
-  document.querySelectorAll('[data-magnetic]').forEach(function (el) {
-    el.addEventListener('pointermove', function (e) {
-      var r = el.getBoundingClientRect();
-      el.style.translate = ((e.clientX - r.left - r.width / 2) * .25) + 'px ' + ((e.clientY - r.top - r.height / 2) * .35) + 'px';
-    });
-    el.addEventListener('pointerleave', function () { el.style.translate = ''; });
-  });
-}
-</script>

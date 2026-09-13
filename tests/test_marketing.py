@@ -57,3 +57,24 @@ def test_paginile_allauth_folosesc_layoutul_public(client, url):
     assert response.status_code == 200
     assert b'class="site-head"' in response.content
     assert b'class="entrance"' in response.content
+
+
+@pytest.mark.django_db
+def test_blog_si_articolul_raspund_200(client):
+    assert client.get("/blog/").status_code == 200
+    response = client.get("/blog/reinigungsplan-vorlage/")
+    assert response.status_code == 200
+    assert b"Vorlage anfordern" in response.content
+
+
+@pytest.mark.django_db
+def test_descarcarea_sablonului_trimite_linkul_pe_email(client, settings):
+    settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+    response = client.post(
+        "/blog/reinigungsplan-vorlage/", {"email": "max@example.de", "privacy": "on"}
+    )
+    assert response.status_code == 302
+    assert len(mail.outbox) == 1
+    assert "reinigungsplan-vorlage.xlsx" in mail.outbox[0].body
+    # static-ul e servit de Nginx, nu de Django; verificăm doar că fișierul e în repo
+    assert (settings.BASE_DIR / "static/downloads/reinigungsplan-vorlage.xlsx").is_file()

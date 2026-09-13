@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Blog — ProFM{% endblock %}
+{% block content %}
+<span class="eyebrow">Wissen & Tipps</span>
+<h1>Blog</h1>
+<p>Wissenswertes rund um das Gebäudereiniger-Handwerk: Tariflohn, Minijob, Arbeitszeit, Ausschreibung.</p>
+<div class="post-grid">
+  <a href="{% url 'marketing:blog_reinigungsplan' %}">
+    <span class="eyebrow">Einsatzplanung</span>
+    <h3>Reinigungsplan für die Gebäudereinigung: kostenlose Vorlage herunterladen</h3>
+    <p>Was ein Reinigungsplan ist, wem er nützt, welche Spalten er braucht — und eine XLSX-Vorlage zum Ausfüllen.</p>
+  </a>
+</div>
+{% endblock %}

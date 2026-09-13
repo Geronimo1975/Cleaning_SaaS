@@ -88,6 +88,7 @@ class StaticSitemap(Sitemap):
         return [
             "marketing:start", "marketing:leistungen", "marketing:betriebe",
             "marketing:reinigungskraefte", "marketing:auftraggeber", "marketing:kontakt",
+            "marketing:blog", "marketing:blog_reinigungsplan",
         ]
 
     def location(self, item):

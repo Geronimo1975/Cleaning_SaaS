@@ -14,7 +14,7 @@
       <a href="{% url 'marketing:betriebe' %}">Für Betriebe</a>
       <a href="{% url 'marketing:reinigungskraefte' %}">Für Reinigungskräfte</a>
       <a href="{% url 'marketing:auftraggeber' %}">Für Auftraggeber</a>
-      <a href="{% url 'jobs:list' %}">Stellen</a>
+      <a href="{% url 'marketing:blog' %}">Blog</a>
       <a href="{% url 'marketing:kontakt' %}">Kontakt</a>
     </nav>
     <div class="site-actions">
@@ -29,13 +29,33 @@
   {% endif %}
   <main class="public">{% block main %}{% block content %}{% endblock %}{% endblock %}</main>
   <footer class="site-foot">
-    <span>© ProFM</span>
-    <nav aria-label="Rechtliches">
-      <a href="{% url 'legal:impressum' %}">Impressum</a>
-      <a href="{% url 'legal:datenschutz' %}">Datenschutz</a>
-      <a href="{% url 'legal:agb' %}">AGB</a>
-      <a href="{% url 'jobs:list' %}">Stellenangebote</a>
-    </nav>
+    <div>
+      <h4>Plattform</h4>
+      <nav>
+        <a href="{% url 'marketing:leistungen' %}">Leistungen</a>
+        <a href="{% url 'marketing:betriebe' %}">Für Betriebe</a>
+        <a href="{% url 'marketing:reinigungskraefte' %}">Für Reinigungskräfte</a>
+        <a href="{% url 'marketing:auftraggeber' %}">Für Auftraggeber</a>
+      </nav>
+    </div>
+    <div>
+      <h4>Ressourcen</h4>
+      <nav>
+        <a href="{% url 'marketing:blog' %}">Blog</a>
+        <a href="{% url 'jobs:list' %}">Stellenangebote</a>
+        <a href="{% url 'public:providers' %}">Reinigungsbetriebe</a>
+        <a href="{% url 'marketing:kontakt' %}">Kontakt</a>
+      </nav>
+    </div>
+    <div>
+      <h4>Rechtliches</h4>
+      <nav>
+        <a href="{% url 'legal:impressum' %}">Impressum</a>
+        <a href="{% url 'legal:datenschutz' %}">Datenschutz</a>
+        <a href="{% url 'legal:agb' %}">AGB</a>
+      </nav>
+    </div>
+    <div class="foot-bottom"><span>© ProFM</span><span>In Schleswig-Holstein entwickelt</span></div>
   </footer>
 </body>
 </html>

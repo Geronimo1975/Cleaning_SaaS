@@ -17,4 +17,10 @@ urlpatterns = [
     ),
     path("fuer-auftraggeber/", views.AuftraggeberView.as_view(), name="auftraggeber"),
     path("kontakt/", views.KontaktView.as_view(), name="kontakt"),
+    path("blog/", views.BlogView.as_view(), name="blog"),
+    path(
+        "blog/reinigungsplan-vorlage/",
+        views.ReinigungsplanVorlageView.as_view(),
+        name="blog_reinigungsplan",
+    ),
 ]

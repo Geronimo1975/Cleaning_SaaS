@@ -9,10 +9,11 @@ ca restul suprafeței publice. Niciun model: conținutul e static în șabloane.
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import send_mail
+from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.views.generic import FormView, TemplateView
 
-from .forms import ContactForm
+from .forms import ContactForm, DownloadForm
 
 
 class StartView(TemplateView):
@@ -53,4 +54,33 @@ class KontaktView(FormView):
             recipient_list=[recipient],
         )
         messages.success(self.request, "Vielen Dank — wir melden uns in Kürze.")
+        return super().form_valid(form)
+
+
+class BlogView(TemplateView):
+    template_name = "marketing/blog.html"
+
+
+class ReinigungsplanVorlageView(FormView):
+    """
+    Articol + lead magnet: șablonul gol de Reinigungsplan (XLSX).
+
+    Descărcarea se trimite pe email — modelul pland — dar linkul apare și pe pagină
+    după trimitere, ca să nu depindă de livrarea emailului.
+    """
+
+    template_name = "marketing/blog_reinigungsplan.html"
+    form_class = DownloadForm
+    success_url = reverse_lazy("marketing:blog_reinigungsplan")
+    download = "downloads/reinigungsplan-vorlage.xlsx"
+
+    def form_valid(self, form):
+        url = self.request.build_absolute_uri(static(self.download))
+        send_mail(
+            subject="Ihre Reinigungsplan-Vorlage",
+            message=f"Vielen Dank. Hier ist Ihre Vorlage: {url}\n\nIhr ProFM-Team",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[form.cleaned_data["email"]],
+        )
+        messages.success(self.request, "Vielen Dank — die Vorlage ist unterwegs an Ihre E-Mail.")
         return super().form_valid(form)

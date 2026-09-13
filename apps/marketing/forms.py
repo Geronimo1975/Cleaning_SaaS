@@ -12,3 +12,13 @@ class ContactForm(forms.Form):
         label="Ich habe die Datenschutzerklärung gelesen und stimme der Verarbeitung "
         "meiner Angaben zur Beantwortung der Anfrage zu."
     )
+
+
+class DownloadForm(forms.Form):
+    """Poarta de descărcare a șablonului: email + consimțământ (DSGVO)."""
+
+    email = forms.EmailField(label="E-Mail")
+    privacy = forms.BooleanField(
+        label="Ich bin einverstanden, dass ProFM mir den Download und Informationen zur "
+        "Plattform per E-Mail zusendet. Widerruf jederzeit möglich."
+    )
