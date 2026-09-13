@@ -29,6 +29,7 @@
   --warning: #b45309;
   --destructive: #dc2626;
   --sidebar: #f8fafc;
+  --hero-glow: #38bdf8;
 
   --radius: 0.5rem;
   --radius-sm: 0.375rem;
@@ -281,4 +282,177 @@ form.inline p { margin: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+
+/* --- Hero public (dinamică „podium luminos”) ------------------------------
+   Referință vizuală: reclamă de produs pe fundal întunecat, inele cyan
+   pulsând, produsul „plutind”. Imaginea și clipul de fundal sunt generate cu
+   Higgsfield (static/img/hero.webp, static/video/hero.mp4). Toată mișcarea e
+   CSS; singurul JS e efectul magnetic al butonului (progresiv, opțional).
+   ========================================================================== */
+
+.hero {
+  position: relative; isolation: isolate; overflow: hidden;
+  color: #f8fafc; background: #050b18;
+  /* full-bleed: iese din containerul .public de 44rem până la marginile ferestrei */
+  margin: calc(-1 * var(--sp-6)) calc(50% - 50vw) var(--sp-6);
+  min-height: min(34rem, 80vh);
+  display: grid; align-items: center;
+  padding: var(--sp-7) max(var(--sp-4), calc(50vw - 22rem));
+}
+.hero-media {
+  position: absolute; inset: 0; z-index: -1;
+  width: 100%; height: 100%; object-fit: cover; object-position: 85% 50%;
+}
+.hero::before {
+  /* voal care ține textul lizibil peste partea stângă a imaginii (4.5:1) */
+  content: ""; position: absolute; inset: 0; z-index: 0; /* peste video, sub .hero-body */
+  background: linear-gradient(90deg, rgb(5 11 24 / .95) 0%, rgb(5 11 24 / .7) 40%, transparent 70%);
+}
+.hero::after {
+  /* inel de lumină pulsând sub conținut — fallback vizual când video nu rulează */
+  content: ""; position: absolute; z-index: -1;
+  left: 50%; bottom: -30%; width: 120vw; max-width: 70rem; aspect-ratio: 2 / 1;
+  border-radius: 50%; translate: -50% 0;
+  background: radial-gradient(closest-side, transparent 60%, rgb(56 189 248 / .35) 62%, transparent 66%,
+              transparent 78%, rgb(56 189 248 / .18) 80%, transparent 84%);
+  animation: hero-pulse 4s ease-in-out infinite;
+}
+@keyframes hero-pulse {
+  0%, 100% { scale: 1; opacity: .7; }
+  50%      { scale: 1.06; opacity: 1; }
+}
+
+.hero-body { position: relative; z-index: 1; max-width: 30rem; }
+.hero-kicker {
+  display: inline-block; padding: .25rem .75rem; border-radius: 999px;
+  border: 1px solid rgb(56 189 248 / .5); background: rgb(56 189 248 / .12);
+  color: #bae6fd; font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+}
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3.25rem); line-height: 1.05; font-weight: 700;
+  letter-spacing: -0.03em; margin: var(--sp-4) 0 var(--sp-3); text-wrap: balance;
+}
+.hero p { color: #cbd5e1; font-size: 1rem; max-width: 26rem; }
+.hero-actions { display: flex; gap: var(--sp-3); flex-wrap: wrap; margin-top: var(--sp-5); }
+.btn-glow {
+  min-height: 2.75rem; padding: 0 var(--sp-5); font-size: .9375rem;
+  background: var(--hero-glow); color: #020617; border-color: transparent;
+  box-shadow: 0 0 0 0 rgb(56 189 248 / .6), 0 8px 30px rgb(56 189 248 / .35);
+  transition: box-shadow .3s ease, translate .25s cubic-bezier(.16, 1, .3, 1), background-color .15s;
+}
+.btn-glow:hover { background: #7dd3fc; box-shadow: 0 0 0 6px rgb(56 189 248 / .18), 0 12px 40px rgb(56 189 248 / .45); }
+.btn-outline { border-color: rgb(248 250 252 / .35); background: transparent; color: #f8fafc; min-height: 2.75rem; padding: 0 var(--sp-5); font-size: .9375rem; }
+.btn-outline:hover { background: rgb(248 250 252 / .08); }
+
+/* intrare în cascadă */
+.hero-body > * { animation: hero-rise .7s cubic-bezier(.16, 1, .3, 1) both; }
+.hero-body > :nth-child(2) { animation-delay: .1s; }
+.hero-body > :nth-child(3) { animation-delay: .2s; }
+.hero-body > :nth-child(4) { animation-delay: .3s; }
+@keyframes hero-rise { from { opacity: 0; translate: 0 1rem; } }
+
+/* listele de anunțuri/prestatori intră la scroll (scroll-driven, fără JS; browsere vechi le văd static) */
+.public > ul > li { animation: hero-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 40%; }
+
+@media (max-width: 640px) {
+  .hero { padding: var(--sp-6) var(--sp-4); min-height: 26rem; }
+  .hero-media { object-position: 65% 40%; }
+  .hero::before { background: linear-gradient(180deg, rgb(5 11 24 / .9) 0%, rgb(5 11 24 / .78) 100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero::after { animation: none; }
+  .hero-media[autoplay] { display: none; }
+  .public > ul > li { animation: none; }
+}
+
+/* --- Site public: header, footer, secțiuni de marketing ------------------ */
+
+.site-head {
+  display: flex; align-items: center; gap: var(--sp-5); flex-wrap: wrap;
+  padding: var(--sp-3) var(--sp-4); max-width: 72rem; margin: 0 auto;
+}
+.site-nav { display: flex; gap: var(--sp-4); flex-wrap: wrap; margin-inline: auto; }
+.site-nav a { color: var(--foreground); font-weight: 500; padding: var(--sp-2) 0; white-space: nowrap; }
+.site-nav a:hover { color: var(--accent); text-decoration: none; }
+.site-actions { display: flex; gap: var(--sp-2); }
+.site-foot {
+  display: flex; gap: var(--sp-4); flex-wrap: wrap; justify-content: space-between;
+  max-width: 72rem; margin: var(--sp-7) auto 0; padding: var(--sp-5) var(--sp-4);
+  border-top: 1px solid var(--border); color: var(--muted-foreground); font-size: 0.8125rem;
+}
+.site-foot nav { display: flex; gap: var(--sp-4); flex-wrap: wrap; }
+.site-foot a { color: var(--muted-foreground); }
+
+/* hero-ul urmează header-ul, deci nu mai trebuie tras în sus */
+.site-head + .public .hero, .site-head + .messages + .public .hero { margin-top: 0; }
+.hero-compact { min-height: 20rem; }
+.hero-compact h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); }
+
+.section { padding: var(--sp-6) 0 0; }
+.section-title { font-size: 1.375rem; letter-spacing: -0.02em; margin-bottom: var(--sp-4); }
+
+.pillars { display: grid; gap: var(--sp-4); grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
+.pillar {
+  display: flex; flex-direction: column; gap: var(--sp-2);
+  padding: var(--sp-5); border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--card); color: var(--foreground);
+  transition: translate .25s cubic-bezier(.16, 1, .3, 1), box-shadow .25s ease, border-color .15s;
+}
+.pillar:hover { text-decoration: none; translate: 0 -4px; border-color: #7dd3fc; box-shadow: 0 12px 32px rgb(56 189 248 / .18); }
+.pillar h3 { font-size: 1.05rem; }
+.pillar p { color: var(--muted-foreground); margin: 0; flex: 1; }
+.pillar-more { color: var(--accent); font-weight: 500; font-size: 0.8125rem; }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-4); grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); counter-reset: step; }
+.steps li { display: flex; flex-direction: column; gap: var(--sp-1); padding-left: 3rem; position: relative; }
+.steps li::before {
+  counter-increment: step; content: counter(step);
+  position: absolute; left: 0; top: 0; width: 2.25rem; height: 2.25rem; border-radius: 50%;
+  display: grid; place-items: center; font-weight: 700;
+  background: #050b18; color: #7dd3fc; box-shadow: 0 0 0 4px rgb(56 189 248 / .18);
+}
+.steps span { color: var(--muted-foreground); }
+
+.trust { margin: var(--sp-6) calc(50% - 50vw) 0; background: #050b18; color: #e2e8f0; }
+.trust ul {
+  list-style: none; margin: 0 auto; padding: var(--sp-5) var(--sp-4); max-width: 72rem;
+  display: grid; gap: var(--sp-4); grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+.trust li { padding-left: 1.5rem; position: relative; }
+.trust li::before { content: ""; position: absolute; left: 0; top: .45em; width: .6rem; height: .6rem; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 12px #38bdf8; }
+
+.features { display: grid; gap: var(--sp-4); grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+.features article { padding: var(--sp-5); border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+.features h3 { margin-bottom: var(--sp-2); }
+.features p { margin: 0; color: var(--muted-foreground); }
+
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-3); }
+.checks li { padding-left: 1.75rem; position: relative; }
+.checks li::before {
+  content: ""; position: absolute; left: 0; top: .2em; width: 1.1rem; height: 1.1rem; border-radius: 50%;
+  background: #e0f2fe url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%230369a1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>') center / 60% no-repeat;
+}
+.note { padding: var(--sp-5); border: 1px solid var(--border); border-radius: var(--radius); background: var(--muted); margin-top: var(--sp-6); }
+.note p { margin: 0; }
+
+.cta-band {
+  margin: var(--sp-7) calc(50% - 50vw) 0; padding: var(--sp-7) var(--sp-4);
+  background: radial-gradient(60% 120% at 50% 120%, rgb(56 189 248 / .35), transparent 70%), #050b18;
+  color: #f8fafc; text-align: center; display: grid; gap: var(--sp-4); justify-items: center;
+}
+.cta-band h2 { font-size: clamp(1.5rem, 3.5vw, 2.25rem); letter-spacing: -0.02em; }
+.site-foot { margin-top: 0; }
+
+.contact input:not([type="submit"]):not([type="checkbox"]), .contact textarea { max-width: 100%; }
+.contact label[for="id_privacy"] { display: inline; font-weight: 400; margin-left: var(--sp-2); }
+
+.public { max-width: 72rem; }
+.public .section, .public h2:not(.section-title) { max-width: 44rem; }
+.public .pillars, .public .features, .public .steps { max-width: none; }
+.section:has(.pillars), .section:has(.features), .section:has(.steps) { max-width: none; }
+
+@media (max-width: 720px) {
+  .site-nav { order: 3; width: 100%; gap: var(--sp-3); font-size: 0.8125rem; overflow-x: auto; flex-wrap: nowrap; }
+  .site-actions { margin-left: auto; }
 }

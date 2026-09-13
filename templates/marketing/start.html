@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}ProFM — Gebäudereinigung, sauber organisiert{% endblock %}
+{% block content %}
+{% url 'account_signup' as signup %}
+{% include "_hero.html" with kicker="Schleswig-Holstein · Hamburg" title="Gebäudereinigung, sauber organisiert." lead="ProFM verbindet Reinigungsbetriebe, Reinigungskräfte und Auftraggeber — mit Einsatzplanung, Zeiterfassung und rechtssicheren Verträgen an einem Ort." cta_url=signup cta_label="Jetzt starten" alt_url="/leistungen/" alt_label="Leistungen ansehen" %}
+
+<section class="section">
+  <h2 class="section-title">Drei Säulen, eine Plattform</h2>
+  <div class="pillars">
+    <a class="pillar" href="{% url 'marketing:betriebe' %}">
+      <h3>Für Betriebe</h3>
+      <p>Aufträge finden, Wochenpläne erstellen, Stunden im Rahmen der Verträge halten.</p>
+      <span class="pillar-more">Mehr erfahren</span>
+    </a>
+    <a class="pillar" href="{% url 'marketing:reinigungskraefte' %}">
+      <h3>Für Reinigungskräfte</h3>
+      <p>Stellen in Ihrer Nähe, klare Schichten, Zeiterfassung per Klick.</p>
+      <span class="pillar-more">Mehr erfahren</span>
+    </a>
+    <a class="pillar" href="{% url 'marketing:auftraggeber' %}">
+      <h3>Für Auftraggeber</h3>
+      <p>Reinigungsbedarf ausschreiben, Angebote vergleichen, geprüfte Betriebe beauftragen.</p>
+      <span class="pillar-more">Mehr erfahren</span>
+    </a>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">Wie es funktioniert</h2>
+  <ol class="steps">
+    <li><strong>Konto anlegen</strong><span>Betrieb, Reinigungskraft oder Auftraggeber; ein Konto kann mehrere Rollen haben.</span></li>
+    <li><strong>Bedarf oder Angebot einstellen</strong><span>Stellenanzeige, Reinigungsanfrage oder Angebot.</span></li>
+    <li><strong>Arbeiten</strong><span>Vertrag, Wochenplan, Zeiterfassung — alles dokumentiert.</span></li>
+  </ol>
+</section>
+
+<section class="trust">
+  <ul>
+    <li>Mindestlohn Gebäudereinigung wird bei jedem Vertrag geprüft.</li>
+    <li>Zeiterfassung nach § 16 ArbZG, unveränderbar protokolliert.</li>
+    <li>Keine automatische Zuweisung von Personen — Betriebe entscheiden selbst.</li>
+  </ul>
+</section>
+
+{% include "marketing/_cta.html" with title="Bereit für saubere Organisation?" label="Jetzt starten" url=signup %}
+{% endblock %}

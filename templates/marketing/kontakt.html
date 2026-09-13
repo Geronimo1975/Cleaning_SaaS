@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Kontakt — ProFM{% endblock %}
+{% block content %}
+{% include "_hero.html" with compact=True kicker="Kontakt" title="Schreiben Sie uns." lead="Fragen zur Plattform, zur Mitgliedschaft oder zu einem konkreten Auftrag?" cta_url="#formular" cta_label="Zum Formular" %}
+
+<section class="section" id="formular">
+  <form method="post" class="contact">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <p><small>Datenschutz: <a href="{% url 'legal:datenschutz' %}">Datenschutzerklärung</a>.</small></p>
+    <button type="submit" class="btn btn-primary">Nachricht senden</button>
+  </form>
+</section>
+{% endblock %}

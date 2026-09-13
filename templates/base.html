@@ -7,11 +7,35 @@
   <link rel="stylesheet" href="{% static 'css/profm.css' %}">
 </head>
 <body>
+  <header class="site-head">
+    <a class="brand" href="{% url 'marketing:start' %}"><span class="brand-mark">PF</span> ProFM</a>
+    <nav class="site-nav" aria-label="Hauptnavigation">
+      <a href="{% url 'marketing:leistungen' %}">Leistungen</a>
+      <a href="{% url 'marketing:betriebe' %}">Für Betriebe</a>
+      <a href="{% url 'marketing:reinigungskraefte' %}">Für Reinigungskräfte</a>
+      <a href="{% url 'marketing:auftraggeber' %}">Für Auftraggeber</a>
+      <a href="{% url 'jobs:list' %}">Stellen</a>
+      <a href="{% url 'marketing:kontakt' %}">Kontakt</a>
+    </nav>
+    <div class="site-actions">
+      <a class="btn btn-sm" href="{% url 'account_login' %}">Anmelden</a>
+      <a class="btn btn-sm btn-primary" href="{% url 'account_signup' %}">Jetzt starten</a>
+    </div>
+  </header>
   {% if messages %}
   <ul class="messages">
     {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
   </ul>
   {% endif %}
   <main class="public">{% block content %}{% endblock %}</main>
+  <footer class="site-foot">
+    <span>© ProFM</span>
+    <nav aria-label="Rechtliches">
+      <a href="{% url 'legal:impressum' %}">Impressum</a>
+      <a href="{% url 'legal:datenschutz' %}">Datenschutz</a>
+      <a href="{% url 'legal:agb' %}">AGB</a>
+      <a href="{% url 'jobs:list' %}">Stellenangebote</a>
+    </nav>
+  </footer>
 </body>
 </html>

@@ -1,4 +1,5 @@
 {% extends "base.html" %}{% block content %}
-<h1>Anunțuri</h1>
+{% include "_hero.html" with kicker="Reinigungskraft gesucht" title="Saubere Arbeit. Faire Bezahlung. Feste Einsätze." lead="Offene Stellen in der Gebäudereinigung in Hamburg und Schleswig-Holstein — ohne Umwege, direkt beim Betrieb." cta_url="#anunturi" cta_label="Stellen ansehen" alt_url="/reinigungskraft/" alt_label="Betriebe finden" %}
+<h2 id="anunturi">Anunțuri</h2>
 <ul>{% for j in jobs %}<li><a href="{{ j.get_absolute_url }}">{{ j.title }}</a> — {{ j.locality.name }}</li>{% empty %}<li>Niciun anunț activ.</li>{% endfor %}</ul>
 {% endblock %}
