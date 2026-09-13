@@ -1,0 +1,35 @@
+{% extends "app.html" %}{% block title %}{{ order.order_number }}{% endblock %}{% block crumb %}Comenzi{% endblock %}
+{% block content %}
+<p><a href="{% url 'dashboard:orders' %}">← Comenzi</a></p>
+
+<div class="card">
+  <div class="card-head">
+    <h1>{{ order.order_number }} — {{ order.title }}</h1>
+    <span class="badge{% if order.status == 'ACTIVE' %} badge-ok{% elif order.status == 'SUSPENDED' %} badge-warn{% elif order.status == 'CANCELLED' %} badge-danger{% elif order.status == 'COMPLETED' %} badge-info{% endif %}">
+      {{ order.get_status_display }}
+    </span>
+  </div>
+  <div class="card-body">
+    <dl>
+      <dt>Client</dt><dd>{{ order.customer.account.display_name }}</dd>
+      <dt>Obiectiv</dt><dd>{{ order.site.name }}, {{ order.site.locality.name }}</dd>
+      <dt>Serviciu</dt><dd>{{ order.category.name_de }}</dd>
+      <dt>Perioadă</dt><dd>{{ order.start_date|date:"d.m.Y" }}{% if order.end_date %} – {{ order.end_date|date:"d.m.Y" }}{% endif %}</dd>
+      <dt>Natura contractului</dt><dd>{{ order.get_contract_kind_display }}</dd>
+      {% if order.accepted_at %}<dt>Recepție (Abnahme)</dt><dd>{{ order.accepted_at|date:"d.m.Y H:i" }}</dd>{% endif %}
+      {% if order.source_offer %}<dt>Oferta câștigătoare</dt><dd>{{ order.source_offer.price_per_visit }} € / vizită</dd>{% endif %}
+    </dl>
+  </div>
+  {% if next_statuses %}
+  <div class="card-foot">
+    <form method="post" action="{% url 'dashboard:order_transition' order.pk %}" class="row">
+      {% csrf_token %}
+      {% for value, label in next_statuses %}
+        <button type="submit" name="status" value="{{ value }}"
+                class="btn{% if value == 'CANCELLED' %} btn-danger{% endif %}">{{ label }}</button>
+      {% endfor %}
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

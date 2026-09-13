@@ -1,0 +1,28 @@
+{% extends "app.html" %}{% block title %}Comenzi{% endblock %}{% block crumb %}Comenzi{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-head"><h1>Comenzi</h1></div>
+  <div class="card-body table-wrap">
+    <table>
+      <tr><th>Număr</th><th>Titlu</th><th>Client</th><th>Obiectiv</th><th>Serviciu</th><th>Început</th><th>Stare</th></tr>
+      {% for o in orders %}
+        <tr>
+          <td><a href="{% url 'dashboard:order_detail' o.pk %}">{{ o.order_number }}</a></td>
+          <td>{{ o.title }}</td>
+          <td>{{ o.customer.account.display_name }}</td>
+          <td>{{ o.site.name }}</td>
+          <td>{{ o.category.name_de }}</td>
+          <td>{{ o.start_date|date:"d.m.Y" }}</td>
+          <td>
+            <span class="badge{% if o.status == 'ACTIVE' %} badge-ok{% elif o.status == 'SUSPENDED' %} badge-warn{% elif o.status == 'CANCELLED' %} badge-danger{% elif o.status == 'COMPLETED' %} badge-info{% endif %}">
+              {{ o.get_status_display }}
+            </span>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7">Nicio comandă. Comenzile apar când o cerere din bursă e activată.</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,6 @@
+{# Banda finală de conversie. Parametri: title, text, label, url #}
+<section class="cta-band">
+  <h2>{{ title }}</h2>
+  {% if text %}<p>{{ text }}</p>{% endif %}
+  <a class="btn" href="{{ url }}">{{ label }}</a>
+</section>

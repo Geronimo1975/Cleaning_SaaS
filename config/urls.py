@@ -42,6 +42,7 @@ urlpatterns = [
     path("api/telemetry/", telemetry_ingest, name="telemetry_ingest"),
     path("dashboard/", include("apps.dashboard.urls")),
     path("", include("apps.legal.urls")),
+    path("", include("apps.marketing.urls")),
     path("cont/", include("apps.accounts.urls")),
     path("", include("apps.jobs.urls")),
     path("", include("apps.accounts.public_urls")),

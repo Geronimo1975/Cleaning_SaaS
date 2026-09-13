@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "apps.planning",
     "apps.devices",
     "apps.marketplace",
+    "apps.billing",
     "apps.cooperative",
     "apps.legal",
     "apps.dashboard",
@@ -111,6 +112,8 @@ ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_UNIQUE_EMAIL = True
+# `User` nu are câmp username; fără asta allauth cade cu FieldDoesNotExist la signup.
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_RATE_LIMITS = {"login_failed": "5/5m"}
 LOGIN_REDIRECT_URL = "/dashboard/"
 LOGOUT_REDIRECT_URL = "/"

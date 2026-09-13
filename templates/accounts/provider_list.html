@@ -1,4 +1,5 @@
 {% extends "base.html" %}{% block content %}
-<h1>Prestatori</h1>
+{% include "_hero.html" with kicker="Gebäudereinigung" title="Geprüfte Reinigungsbetriebe in Ihrer Nähe." lead="Treppenhaus, Büro, Glas — regionale Betriebe mit fairen Löhnen und klaren Verträgen. Anfrage stellen, Angebote vergleichen." cta_url="#prestatori" cta_label="Betriebe ansehen" alt_url="/jobs/" alt_label="Jobs für Reinigungskräfte" %}
+<h2 id="prestatori">Prestatori</h2>
 <ul>{% for v in views %}<li><a href="/profil/{{ v.slug }}/">{{ v.display_name }}</a> — {{ v.locality }}</li>{% empty %}<li>Niciun prestator.</li>{% endfor %}</ul>
 {% endblock %}

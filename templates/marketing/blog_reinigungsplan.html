@@ -1,0 +1,64 @@
+{% extends "base.html" %}{% load static %}
+{% block title %}Reinigungsplan Gebäudereinigung: kostenlose Vorlage — ProFM{% endblock %}
+{% block content %}
+{% url 'account_signup' as signup %}
+<a class="back" href="{% url 'marketing:blog' %}">← Alle Artikel ansehen</a>
+<div class="article">
+  <article class="article-body">
+    <span class="eyebrow">Wissen & Tipps</span>
+    <h1>Reinigungsplan für die Gebäudereinigung: Hier kostenlose Vorlage herunterladen</h1>
+    <p class="article-meta">ProFM-Redaktion · Stand: September 2026</p>
+    <img src="{% static 'img/hero.webp' %}" alt="Reinigungsgeräte" width="1344" height="752">
+
+    <p class="lead">Ein Reinigungsplan hält fest, was in einem Objekt wann und wie gereinigt wird. Er gibt Reinigungskräften Orientierung, der Objektleitung Kontrolle und dem Auftraggeber einen Nachweis. Unten finden Sie eine kostenlose XLSX-Vorlage — und erfahren, was in einen guten Plan gehört.</p>
+
+    <h2>Was ist ein Reinigungsplan?</h2>
+    <p>Ein Reinigungsplan ist die schriftliche Festlegung aller Reinigungsleistungen für ein Gebäude: welche Bereiche, welche Tätigkeiten, in welchem Rhythmus. Er ist Teil des Leistungsverzeichnisses zwischen Betrieb und Auftraggeber und zugleich die Arbeitsanweisung für die Reinigungskraft vor Ort.</p>
+
+    <h2>Warum er in der Gebäudereinigung wichtig ist</h2>
+    <p>Ohne Plan bleiben Bereiche liegen oder werden doppelt gereinigt. Mit Plan lassen sich Zeit und Material im Voraus kalkulieren, kritische Bereiche wie Sanitärräume oder Eingänge priorisieren und Vertretungen ohne Erklärung einarbeiten. Bei Reklamationen dient der Plan als Beleg dafür, was vereinbart war.</p>
+
+    <h2>Wer davon profitiert</h2>
+    <ul class="checks">
+      <li><strong>Reinigungskräfte</strong> — klare Aufgaben je Objekt, nichts wird vergessen.</li>
+      <li><strong>Objektleitung</strong> — Kontrolle über Rhythmus und Vollständigkeit, Nachweis bei Beschwerden.</li>
+      <li><strong>Geschäftsführung</strong> — kalkulierbarer Aufwand, Grundlage für Angebot und Rechnung.</li>
+      <li><strong>Auftraggeber</strong> — Transparenz, was für den vereinbarten Preis geleistet wird.</li>
+    </ul>
+
+    <h2>Die Vorlage: vier Spalten genügen</h2>
+    <ol>
+      <li><strong>Bereich / Ort</strong> — Treppenhaus, Büro 1. OG, Sanitärräume.</li>
+      <li><strong>Leistung</strong> — Feucht wischen, Staubsaugen, Glasreinigung.</li>
+      <li><strong>Beschreibung</strong> — was genau dazugehört, z. B. Handläufe, Papierkörbe, Spiegel.</li>
+      <li><strong>Reinigungsfrequenz</strong> — täglich, 2× wöchentlich, monatlich.</li>
+    </ol>
+    <p>Die Vorlage enthält fünf Beispielzeilen und Platz für Ihre eigenen Bereiche. Weitere Spalten (Material, Hinweise) fügen Sie nach Bedarf hinzu.</p>
+
+    <div class="download-form" id="download">
+      <h3>Reinigungsplan-Vorlage kostenlos herunterladen</h3>
+      <p>Sie erhalten den Download-Link per E-Mail.</p>
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Vorlage anfordern</button>
+      </form>
+      {% if messages %}<p><a href="{% static 'downloads/reinigungsplan-vorlage.xlsx' %}">Direkt herunterladen (XLSX)</a></p>{% endif %}
+    </div>
+
+    <h2>Reinigungsplan direkt aus der Einsatzplanung — mit ProFM</h2>
+    <p>Wer seine Objekte und Zonen in ProFM pflegt, muss keinen Plan mehr von Hand schreiben: Der Wochenplan berücksichtigt Vertragsstunden, Höchstarbeitszeit und Ruhezeiten, und der Reinigungsplan wird als XLSX aus den echten Daten exportiert — mit denselben vier Spalten plus Dauer je Einsatz und Wochentagen. Die Zeiterfassung liefert den Nachweis dazu.</p>
+    <a class="btn btn-primary" href="{{ signup }}">Jetzt starten</a>
+  </article>
+
+  <aside>
+    <div class="aside-card">
+      <h3>Jeden Tag den passenden Wochenplan</h3>
+      <p>Objekte, Zonen und Intervalle einmal anlegen — ProFM erstellt den Wochenplan im Rahmen der Verträge und exportiert den Reinigungsplan für den Auftraggeber.</p>
+      <a class="btn btn-primary" href="{% url 'marketing:leistungen' %}">Mehr erfahren</a>
+    </div>
+  </aside>
+</div>
+
+{% include "marketing/_cta.html" with title="Jetzt registrieren und kostenlos starten." text="Ein Konto für Betrieb, Reinigungskraft oder Auftraggeber — Verträge, Wochenplan und Zeiterfassung an einem Ort." label="Jetzt starten" url=signup %}
+{% endblock %}

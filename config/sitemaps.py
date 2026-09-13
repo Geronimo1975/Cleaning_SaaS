@@ -78,7 +78,25 @@ class DirectorySitemap(Sitemap):
         return reverse(name, kwargs=kwargs)
 
 
+class StaticSitemap(Sitemap):
+    """Paginile de marketing — conținut static, mereu 200."""
+
+    changefreq = "monthly"
+    priority = 0.6
+
+    def items(self):
+        return [
+            "marketing:start", "marketing:leistungen", "marketing:betriebe",
+            "marketing:reinigungskraefte", "marketing:auftraggeber", "marketing:kontakt",
+            "marketing:blog", "marketing:blog_reinigungsplan",
+        ]
+
+    def location(self, item):
+        return reverse(item)
+
+
 SITEMAPS = {
+    "static": StaticSitemap,
     "jobs": JobSitemap,
     "profiles": ProfileSitemap,
     "directory": DirectorySitemap,

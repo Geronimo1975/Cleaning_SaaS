@@ -186,9 +186,11 @@ so publishing never depends on an external API being up. Without
 
 Job detail pages must stay readable without login or they fail Google for Jobs.
 
-There is no root route: `GET /` returns **404**. `config/urls.py` mounts only `admin/`,
+`GET /` is the marketing start page (`apps/marketing`, German copy from
+`docs/superpowers/plans/2026-09-12-marketing-site-wordpress.md` Task 6 — six static
+`TemplateView`s plus a contact `FormView`, no models). `config/urls.py` mounts `admin/`,
 `sitemap.xml`, `robots.txt`, `accounts/` (allauth), `api/telemetry/`, `dashboard/`, `cont/`,
-and the two public URLconfs.
+and the public URLconfs (`legal`, `marketing`, `jobs`, `accounts.public_urls`).
 
 ### Telemetry verifies, it does not measure
 

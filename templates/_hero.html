@@ -1,0 +1,13 @@
+{% load static %}{# Hero public, stil pland: text stânga, imagine dreapta. Parametri: kicker, title, lead, cta_url, cta_label, alt_url, alt_label #}
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-body">
+    <span class="eyebrow">{{ kicker }}</span>
+    <h1 id="hero-title">{{ title }}</h1>
+    <p>{{ lead }}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="{{ cta_url }}">{{ cta_label }}</a>
+      {% if alt_url %}<a class="btn" href="{{ alt_url }}">{{ alt_label }}</a>{% endif %}
+    </div>
+  </div>
+  <img class="hero-media" src="{% static 'img/hero.webp' %}" alt="" width="1344" height="752" loading="eager">
+</section>

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Leistungen — ProFM{% endblock %}
+{% block content %}
+{% url 'account_signup' as signup %}
+{% include "_hero.html" with kicker="Leistungen" title="Was ProFM leistet." lead="Marktplatz, Stellenanzeigen, Einsatzplanung, Zeiterfassung und Verträge — ein System, keine fünf." cta_url=signup cta_label="Jetzt starten" %}
+
+<section class="section">
+  <div class="features">
+    <article><h3>Marktplatz</h3><p>Auftraggeber schreiben Reinigungsbedarf aus, Betriebe geben Angebote ab. Die Bewertung der Angebote folgt Regeln, die die Mitglieder gemeinsam festlegen — kein Betrieb wird bevorzugt.</p></article>
+    <article><h3>Stellenanzeigen</h3><p>Betriebe veröffentlichen Stellen; die Anzeigen sind öffentlich, ohne Anmeldung lesbar und bei Google for Jobs gelistet.</p></article>
+    <article><h3>Einsatzplanung</h3><p>Objekte, Zonen, Reinigungsintervalle. Der Wochenplan berücksichtigt Vertragsstunden, Höchstarbeitszeit, Ruhezeiten und Sonntage. Was nicht passt, bleibt sichtbar offen statt still überbucht.</p></article>
+    <article><h3>Zeiterfassung</h3><p>Check-in und Check-out pro Schicht, Korrekturen nur als neuer Eintrag. Export als Reinigungsplan (XLSX) für den Auftraggeber.</p></article>
+    <article><h3>Verträge</h3><p>Aus dem gewonnenen Angebot entsteht der Vertragsentwurf mit den Zahlen des Angebots. Prüfung gegen Branchenmindestlohn und Minijob-Grenze vor der Unterschrift.</p></article>
+  </div>
+</section>
+
+{% include "marketing/_cta.html" with title="Alles an einem Ort." label="Jetzt starten" url=signup %}
+{% endblock %}

@@ -21,6 +21,9 @@ NEVER_TIMESTAMPED = [
     ("accounts", "AccountService"),
     ("accounts", "ServiceArea"),
     ("devices", "TelemetrySession"),
+    ("billing", "Customer"),
+    ("billing", "Order"),
+    ("billing", "DocumentSequence"),
 ]
 
 TIMESTAMPED = [
