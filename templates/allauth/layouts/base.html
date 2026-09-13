@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{# Toate paginile allauth (login, signup, reset parolă, verificare email) trec prin acest layout,
+   deci primesc header-ul, footer-ul și CSS-ul public. Meniul „Menu:” al allauth e omis
+   intenționat — navigația e deja în header. #}
+{% block title %}{% block head_title %}{% endblock %} — ProFM{% endblock %}
+{% block main %}<div class="entrance">{% block content %}{% endblock %}</div>{% endblock %}

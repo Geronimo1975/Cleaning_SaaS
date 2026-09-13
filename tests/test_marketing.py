@@ -45,3 +45,15 @@ def test_kontakt_fara_consimtamant_nu_trimite(client, settings):
     })
     assert response.status_code == 200
     assert mail.outbox == []
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "url", ["/accounts/login/", "/accounts/signup/", "/accounts/password/reset/"]
+)
+def test_paginile_allauth_folosesc_layoutul_public(client, url):
+    """Login/signup trec prin base.html: header-ul public și cardul .entrance."""
+    response = client.get(url)
+    assert response.status_code == 200
+    assert b'class="site-head"' in response.content
+    assert b'class="entrance"' in response.content

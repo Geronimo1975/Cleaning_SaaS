@@ -27,7 +27,7 @@
     {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
   </ul>
   {% endif %}
-  <main class="public">{% block content %}{% endblock %}</main>
+  <main class="public">{% block main %}{% block content %}{% endblock %}{% endblock %}</main>
   <footer class="site-foot">
     <span>© ProFM</span>
     <nav aria-label="Rechtliches">
