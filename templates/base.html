@@ -7,11 +7,27 @@
   <link rel="stylesheet" href="{% static 'css/profm.css' %}">
 </head>
 <body>
+  <header class="public-header">
+    <a class="brand" href="{% url 'jobs:list' %}">
+      <span class="brand-mark">PF</span> ProFM
+    </a>
+    <nav class="public-nav">
+      <a href="{% url 'jobs:list' %}">Stellenangebote</a>
+      <a href="{% url 'public:providers' %}">Reinigungskraft finden</a>
+    </nav>
+  </header>
+
   {% if messages %}
   <ul class="messages">
     {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
   </ul>
   {% endif %}
   <main class="public">{% block content %}{% endblock %}</main>
+
+  <footer class="public-footer">
+    <a href="{% url 'legal:impressum' %}">Impressum</a>
+    <a href="{% url 'legal:datenschutz' %}">Datenschutz</a>
+    <a href="{% url 'legal:agb' %}">AGB</a>
+  </footer>
 </body>
 </html>
