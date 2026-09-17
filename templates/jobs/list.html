@@ -1,4 +1,37 @@
-{% extends "base.html" %}{% block content %}
-<h1>Anunțuri</h1>
-<ul>{% for j in jobs %}<li><a href="{{ j.get_absolute_url }}">{{ j.title }}</a> — {{ j.locality.name }}</li>{% empty %}<li>Niciun anunț activ.</li>{% endfor %}</ul>
+{% extends "base.html" %}
+{% block title %}Stellenangebote{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Stellenangebote in der Gebäudereinigung</h1>
+    <p>Aktuelle offene Stellen bei Betrieben in Hamburg und Schleswig-Holstein.</p>
+  </div>
+</div>
+
+<div class="grid grid-panels">
+  {% for j in jobs %}
+  <a class="card card-hover card-link" href="{{ j.get_absolute_url }}">
+    <div class="card-head">
+      <h2>{{ j.title }}</h2>
+      <span class="badge">{{ j.get_employment_type_display }}</span>
+    </div>
+    <div class="card-body">
+      <p class="muted">{{ j.account.display_name }} · {{ j.locality.name }} · {{ j.category }}</p>
+      {% if j.salary_min %}
+      <p style="margin-top:var(--sp-2); font-weight:600;">{{ j.salary_min }}–{{ j.salary_max|default:j.salary_min }} {{ j.salary_currency }} / {{ j.get_salary_unit_display }}</p>
+      {% endif %}
+    </div>
+  </a>
+  {% empty %}
+  <div class="card"><div class="empty">Aktuell keine offenen Stellen.</div></div>
+  {% endfor %}
+</div>
+
+{% if is_paginated %}
+<div class="row" style="justify-content:center; margin-top:var(--sp-6);">
+  {% if page_obj.has_previous %}<a class="btn btn-sm" href="?page={{ page_obj.previous_page_number }}">← Zurück</a>{% endif %}
+  <span class="muted">Seite {{ page_obj.number }} von {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}<a class="btn btn-sm" href="?page={{ page_obj.next_page_number }}">Weiter →</a>{% endif %}
+</div>
+{% endif %}
 {% endblock %}
